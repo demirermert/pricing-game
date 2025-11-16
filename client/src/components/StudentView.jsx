@@ -642,7 +642,7 @@ export function StudentView({
                   Market Share
                 </div>
                 <div style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.75rem', 
                   fontWeight: 700,
                   color: '#3b82f6'
                 }}>
@@ -659,14 +659,10 @@ export function StudentView({
                   Profit
                 </div>
                 <div style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.75rem', 
                   fontWeight: 700,
-                  color: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  color: '#10b981'
                 }}>
-                  <span style={{ fontSize: '1.25rem' }}>↗</span>
                   ${latestResult.profit.toFixed(0)}
                 </div>
               </div>
@@ -735,14 +731,10 @@ export function StudentView({
                   Profit
                 </div>
                 <div style={{ 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.75rem', 
                   fontWeight: 700,
-                  color: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  color: '#10b981'
                 }}>
-                  <span style={{ fontSize: '1.25rem' }}>↗</span>
                   ${(latestResult.opponentProfit !== undefined && latestResult.opponentProfit !== null) ? latestResult.opponentProfit.toFixed(0) : '-'}
                 </div>
               </div>
