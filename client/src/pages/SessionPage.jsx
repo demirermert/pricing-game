@@ -150,6 +150,10 @@ export default function SessionPage() {
       setHasSubmitted(payload.hasSubmitted || false);
       setTimer(payload.roundTime);
       setNextRoundCountdown(null); // Clear countdown when new round starts
+      
+      // Store the round start time for client-side fallback timer
+      sessionStorage.setItem('roundStartTime', Date.now().toString());
+      sessionStorage.setItem('roundDuration', payload.roundTime.toString());
     };
     
     const handleRoundResults = payload => {
@@ -157,10 +161,17 @@ export default function SessionPage() {
       setHistory(payload.history || []);
       setHasSubmitted(true);
       setRoundActive(false);
+      
+      // Clear round timer from session storage
+      sessionStorage.removeItem('roundStartTime');
+      sessionStorage.removeItem('roundDuration');
     };
     
     const handleTimerUpdate = payload => {
       setTimer(payload.remaining);
+      // Update last server time
+      sessionStorage.setItem('lastServerTime', Date.now().toString());
+      sessionStorage.setItem('lastServerTimer', payload.remaining.toString());
     };
     
     const handleNextRoundCountdown = payload => {
@@ -307,6 +318,42 @@ export default function SessionPage() {
       socket.off('opponentInfo', handleOpponentInfo);
     };
   }, []);
+
+  // Client-side fallback timer - runs every second to keep timer updated even if socket fails
+  useEffect(() => {
+    if (!roundActive || hasSubmitted) return;
+    
+    const fallbackTimer = setInterval(() => {
+      const roundStartTime = parseInt(sessionStorage.getItem('roundStartTime'));
+      const roundDuration = parseInt(sessionStorage.getItem('roundDuration'));
+      const lastServerTime = parseInt(sessionStorage.getItem('lastServerTime'));
+      const lastServerTimer = parseInt(sessionStorage.getItem('lastServerTimer'));
+      
+      if (roundStartTime && roundDuration) {
+        // Calculate client-side remaining time
+        const elapsed = (Date.now() - roundStartTime) / 1000;
+        const clientRemaining = Math.max(0, Math.ceil(roundDuration - elapsed));
+        
+        // If we have recent server data (within 3 seconds), use it
+        // Otherwise use client-side calculation
+        if (lastServerTime && lastServerTimer && (Date.now() - lastServerTime) < 3000) {
+          // Server data is recent, trust it
+          setTimer(lastServerTimer);
+        } else {
+          // No recent server data, use client calculation
+          setTimer(clientRemaining);
+        }
+        
+        // If timer reaches 0, clean up
+        if (clientRemaining <= 0) {
+          sessionStorage.removeItem('roundStartTime');
+          sessionStorage.removeItem('roundDuration');
+        }
+      }
+    }, 1000);
+    
+    return () => clearInterval(fallbackTimer);
+  }, [roundActive, hasSubmitted]);
 
   // Auto-join if coming from instructor or student page, or if student code in URL
   useEffect(() => {

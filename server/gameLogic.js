@@ -436,15 +436,31 @@ export function createGameManager(io) {
     broadcastSession(session);
     
     // Broadcast timer updates every second
+    let lastBroadcastTime = Date.now();
     session.timers.timerBroadcast = setInterval(() => {
-      const elapsed = (Date.now() - session.roundStartTime) / 1000;
-      const remaining = Math.max(0, Math.ceil(session.config.roundTime - elapsed));
-      io.to(session.code).emit('timerUpdate', { remaining });
-      
-      // Stop broadcasting when time is up
-      if (remaining <= 0 && session.timers.timerBroadcast) {
-        clearInterval(session.timers.timerBroadcast);
-        session.timers.timerBroadcast = null;
+      try {
+        const now = Date.now();
+        const elapsed = (now - session.roundStartTime) / 1000;
+        const remaining = Math.max(0, Math.ceil(session.config.roundTime - elapsed));
+        
+        // Only broadcast if value changed or enough time passed
+        if (remaining !== session.lastBroadcastRemaining || (now - lastBroadcastTime) >= 900) {
+          io.to(session.code).emit('timerUpdate', { remaining });
+          session.lastBroadcastRemaining = remaining;
+          lastBroadcastTime = now;
+        }
+        
+        // Stop broadcasting when time is up
+        if (remaining <= 0 && session.timers.timerBroadcast) {
+          clearInterval(session.timers.timerBroadcast);
+          session.timers.timerBroadcast = null;
+        }
+      } catch (err) {
+        console.error(`[Session ${session.code}] Timer broadcast error:`, err);
+        if (session.timers.timerBroadcast) {
+          clearInterval(session.timers.timerBroadcast);
+          session.timers.timerBroadcast = null;
+        }
       }
     }, 1000);
     
