@@ -73,6 +73,9 @@ export async function getAIPriceDecision(config, history = [], opponentHistory =
 function buildGamePrompt(config, history, opponentHistory) {
   const currentRound = history.length + 1;
   
+  // Calculate monopoly price (1/alpha)
+  const monopolyPrice = 1 / config.alpha;
+  
   let prompt = `You are playing a competitive pricing game. Here are the rules:
 
 GAME RULES:
@@ -80,15 +83,13 @@ GAME RULES:
 - Price range: $${config.priceBounds.min} to $${config.priceBounds.max}
 - Total rounds: ${config.rounds}
 - Current round: ${currentRound}
+- Monopoly price (if you were alone): $${monopolyPrice.toFixed(2)}
 
-DEMAND MODEL (Logit):
-Your demand = MarketSize × exp(-alpha × YourPrice) / [exp(-alpha × YourPrice) + exp(-alpha × OpponentPrice)]
-Where alpha = ${config.alpha}, sigma = ${config.sigma}
-
-This means:
-- If you set a LOWER price than your opponent, you get MORE demand
-- If you set a HIGHER price than your opponent, you get LESS demand
+KEY INSIGHTS:
+- If you set a LOWER price than your opponent, you get MORE market share
+- If you set a HIGHER price than your opponent, you get LESS market share
 - Your profit = YourPrice × YourDemand
+- The monopoly price maximizes profit when there's no competition
 
 OBJECTIVE:
 Maximize your total profit across all rounds.
