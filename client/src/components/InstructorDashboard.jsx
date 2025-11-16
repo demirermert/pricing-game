@@ -714,59 +714,96 @@ export function InstructorDashboard({
                         {isHovered && pair.priceHistoryA && pair.priceHistoryA.length > 0 && (
                           <div style={{
                             position: 'absolute',
-                            bottom: '100%',
+                            top: '100%',
                             right: '0',
-                            marginBottom: '0.5rem',
+                            marginTop: '0.5rem',
                             backgroundColor: 'white',
                             border: '2px solid #3b82f6',
                             borderRadius: '8px',
                             padding: '1rem',
                             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
                             zIndex: 1000,
-                            minWidth: '300px',
-                            whiteSpace: 'nowrap'
+                            minWidth: '400px'
                           }}>
-                            <div style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9rem', color: '#374151' }}>
+                            <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem', color: '#374151' }}>
                               💰 Price History
                             </div>
                             
-                            {/* Player A Prices */}
-                            <div style={{ marginBottom: '0.5rem' }}>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.25rem' }}>
-                                {pair.playerA}:
-                              </div>
-                              <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.85rem', color: '#1f2937' }}>
-                                {pair.priceHistoryA.map((price, i) => (
-                                  <span key={i} style={{
-                                    padding: '0.25rem 0.5rem',
-                                    backgroundColor: '#dbeafe',
-                                    borderRadius: '4px',
-                                    fontWeight: 600
+                            {/* Table format */}
+                            <table style={{
+                              width: '100%',
+                              borderCollapse: 'collapse',
+                              fontSize: '0.85rem'
+                            }}>
+                              <thead>
+                                <tr style={{ backgroundColor: '#f3f4f6' }}>
+                                  <th style={{ 
+                                    padding: '0.5rem',
+                                    textAlign: 'left',
+                                    fontWeight: 600,
+                                    color: '#374151',
+                                    borderBottom: '2px solid #d1d5db'
                                   }}>
-                                    R{i+1}: ${price.toFixed(2)}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {/* Player B Prices */}
-                            <div>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.25rem' }}>
-                                {pair.playerB}:
-                              </div>
-                              <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.85rem', color: '#1f2937' }}>
-                                {pair.priceHistoryB.map((price, i) => (
-                                  <span key={i} style={{
-                                    padding: '0.25rem 0.5rem',
-                                    backgroundColor: '#fef3c7',
-                                    borderRadius: '4px',
-                                    fontWeight: 600
+                                    Player
+                                  </th>
+                                  {pair.priceHistoryA.map((_, i) => (
+                                    <th key={i} style={{
+                                      padding: '0.5rem',
+                                      textAlign: 'center',
+                                      fontWeight: 600,
+                                      color: '#374151',
+                                      borderBottom: '2px solid #d1d5db'
+                                    }}>
+                                      R{i+1}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {/* Player A Row */}
+                                <tr style={{ backgroundColor: '#dbeafe' }}>
+                                  <td style={{
+                                    padding: '0.5rem',
+                                    fontWeight: 600,
+                                    color: '#1e40af',
+                                    borderBottom: '1px solid #d1d5db'
                                   }}>
-                                    R{i+1}: ${price.toFixed(2)}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                                    {pair.playerA}
+                                  </td>
+                                  {pair.priceHistoryA.map((price, i) => (
+                                    <td key={i} style={{
+                                      padding: '0.5rem',
+                                      textAlign: 'center',
+                                      fontWeight: 600,
+                                      color: '#1f2937',
+                                      borderBottom: '1px solid #d1d5db'
+                                    }}>
+                                      ${price.toFixed(2)}
+                                    </td>
+                                  ))}
+                                </tr>
+                                {/* Player B Row */}
+                                <tr style={{ backgroundColor: '#fef3c7' }}>
+                                  <td style={{
+                                    padding: '0.5rem',
+                                    fontWeight: 600,
+                                    color: '#92400e'
+                                  }}>
+                                    {pair.playerB}
+                                  </td>
+                                  {pair.priceHistoryB.map((price, i) => (
+                                    <td key={i} style={{
+                                      padding: '0.5rem',
+                                      textAlign: 'center',
+                                      fontWeight: 600,
+                                      color: '#1f2937'
+                                    }}>
+                                      ${price.toFixed(2)}
+                                    </td>
+                                  ))}
+                                </tr>
+                              </tbody>
+                            </table>
                           </div>
                         )}
                       </td>
