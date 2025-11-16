@@ -215,6 +215,44 @@ async function setupInstructorManual(browser) {
     }
     
     console.log(`✅ Session Code: ${sessionCode}`);
+    
+    // Now wait for instructor to click "Open Lobby"
+    console.log('\n' + '='.repeat(60));
+    console.log('🚪 Waiting for you to click "Open Lobby"...');
+    console.log('='.repeat(60) + '\n');
+    
+    let lobbyOpened = false;
+    attempts = 0;
+    while (!lobbyOpened && attempts < maxAttempts) {
+      await delay(1000);
+      attempts++;
+      
+      // Check if status has changed from 'setup' to 'lobby'
+      lobbyOpened = await instructorPage.evaluate(() => {
+        // Look for status tag that says "LOBBY"
+        const statusTags = Array.from(document.querySelectorAll('.status-tag, [class*="status"]'));
+        for (const tag of statusTags) {
+          if (tag.textContent.trim().toUpperCase() === 'LOBBY') {
+            return true;
+          }
+        }
+        
+        // Also check if "Open Lobby" button is gone and "Start Game" button appears
+        const buttons = Array.from(document.querySelectorAll('button'));
+        const hasStartGame = buttons.some(btn => 
+          btn.textContent.toLowerCase().includes('start') && 
+          btn.textContent.toLowerCase().includes('game')
+        );
+        return hasStartGame;
+      }).catch(() => false);
+    }
+    
+    if (!lobbyOpened) {
+      console.log('❌ Lobby was not opened within the time limit');
+      throw new Error('Lobby not opened - timed out waiting');
+    }
+    
+    console.log('✅ Lobby opened! Students can now join.');
     console.log('📌 Keeping instructor page open for monitoring\n');
     
     // Note: We'll extract parameters after the game starts (when they're displayed)
@@ -398,9 +436,33 @@ async function setupInstructor(browser) {
     
     console.log(`✅ Session Code: ${sessionCode}`);
     
+    // Now automatically click "Open Lobby" button
+    console.log('🚪 Clicking "Open Lobby" button...');
+    await delay(1000);
+    
+    const openLobbyButtons = await instructorPage.$$('button').catch(() => []);
+    let lobbyOpened = false;
+    
+    for (const button of openLobbyButtons) {
+      const text = await button.evaluate(el => el.textContent.trim()).catch(() => '');
+      if (text.toLowerCase().includes('open') && text.toLowerCase().includes('lobby')) {
+        console.log('🖱️  Found "Open Lobby" button, clicking...');
+        await button.click();
+        lobbyOpened = true;
+        await delay(2000); // Wait for status to update
+        break;
+      }
+    }
+    
+    if (!lobbyOpened) {
+      console.log('⚠️  Could not find "Open Lobby" button - session may already be open');
+    } else {
+      console.log('✅ Lobby opened! Students can now join.');
+    }
+    
     // Use default values for monopoly price calculation (since instructor didn't manually configure)
-    // Default is Logit model with alpha=1
-    const monopolyPrice = 10; // 10/1 = 10
+    // Default is Hotelling model with default parameters
+    const monopolyPrice = 50; // Default for Hotelling at boundaries
     
     return { instructorPage, sessionCode, monopolyPrice };
   } catch (error) {
