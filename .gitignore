@@ -31,6 +31,12 @@ coverage/
 *.tmp
 *.temp
 
+# Automation artifacts
+instructor-*.png
+instructor-*.html
+student-*.png
+results-*.png
+
 
 
 
