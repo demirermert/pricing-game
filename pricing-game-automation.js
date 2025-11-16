@@ -217,7 +217,9 @@ async function setupInstructorManual(browser) {
     console.log(`✅ Session Code: ${sessionCode}`);
     console.log('📌 Keeping instructor page open for monitoring\n');
     
-    return { instructorPage, sessionCode };
+    // Note: We'll extract parameters after the game starts (when they're displayed)
+    // For now, return a placeholder that will be updated later
+    return { instructorPage, sessionCode, monopolyPrice: null };
   } catch (error) {
     console.error('❌ Error in setupInstructorManual:', error.message);
     if (instructorPage) {
@@ -396,7 +398,11 @@ async function setupInstructor(browser) {
     
     console.log(`✅ Session Code: ${sessionCode}`);
     
-    return { instructorPage, sessionCode };
+    // Use default values for monopoly price calculation (since instructor didn't manually configure)
+    // Default is Logit model with alpha=1
+    const monopolyPrice = 10; // 10/1 = 10
+    
+    return { instructorPage, sessionCode, monopolyPrice };
   } catch (error) {
     console.error('❌ Error in setupInstructor:', error.message);
     if (instructorPage) {
@@ -688,7 +694,7 @@ async function main() {
     });
     
     // Setup instructor and get session code
-    const { instructorPage, sessionCode } = MANUAL_START 
+    let { instructorPage, sessionCode, monopolyPrice } = MANUAL_START 
       ? await setupInstructorManual(browser)
       : await setupInstructor(browser);
     
@@ -761,13 +767,95 @@ async function main() {
       } else {
         console.log('✅ Game started!');
         
+        // Wait for the page to update after starting
+        await delay(1500);
+        
+        // Extract game parameters NOW (after game starts, when they're displayed)
+        if (monopolyPrice === null || monopolyPrice === 10) {
+          console.log('📊 Extracting game parameters from instructor page...');
+          const gameParams = await instructorPage.evaluate(() => {
+            // Look for the parameters display in small gray text (after game starts)
+            const allDivs = Array.from(document.querySelectorAll('div'));
+            
+            for (const div of allDivs) {
+              const style = window.getComputedStyle(div);
+              const text = div.textContent;
+              
+              // Look for the parameter display (small gray text)
+              if (style.fontSize.includes('0.75rem') || style.fontSize === '12px') {
+                // Check for Hotelling model
+                if (text.includes('Hotelling Model') || text.includes('hotelling')) {
+                  const tMatch = text.match(/t=\$?([\d.]+)/);
+                  const vMatch = text.match(/V=\$?([\d.]+)/);
+                  const x1Match = text.match(/x₁=([\d.]+)/);
+                  const x2Match = text.match(/x₂=([\d.]+)/);
+                  
+                  if (tMatch && vMatch && x1Match && x2Match) {
+                    return {
+                      modelType: 'hotelling',
+                      travelCost: parseFloat(tMatch[1]),
+                      consumerValue: parseFloat(vMatch[1]),
+                      x1: parseFloat(x1Match[1]),
+                      x2: parseFloat(x2Match[1])
+                    };
+                  }
+                }
+                
+                // Check for Logit model
+                if (text.includes('Logit Model') || text.includes('logit')) {
+                  const alphaMatch = text.match(/α=([\d.]+)/);
+                  const sigmaMatch = text.match(/σ=([\d.]+)/);
+                  
+                  if (alphaMatch) {
+                    return {
+                      modelType: 'logit',
+                      alpha: parseFloat(alphaMatch[1]),
+                      sigma: sigmaMatch ? parseFloat(sigmaMatch[1]) : 5
+                    };
+                  }
+                }
+              }
+            }
+            
+            return null;
+          }).catch(() => null);
+          
+          if (gameParams) {
+            if (gameParams.modelType === 'hotelling') {
+              const V = gameParams.consumerValue;
+              const t = gameParams.travelCost;
+              const x1 = gameParams.x1;
+              const leftReach = (V/2) / t;
+              const rightReach = (V/2) / t;
+              
+              if (leftReach >= x1 && rightReach >= (100 - x1)) {
+                monopolyPrice = V/2;
+              } else if (leftReach < x1 && rightReach < (100 - x1)) {
+                monopolyPrice = V/2;
+              } else if (leftReach >= x1) {
+                monopolyPrice = (V + t * x1) / 2;
+              } else {
+                monopolyPrice = (V + t * (100 - x1)) / 2;
+              }
+              console.log(`📊 Hotelling Model: V=${V}, t=${t}, x₁=${x1}, x₂=${gameParams.x2}`);
+            } else if (gameParams.modelType === 'logit') {
+              monopolyPrice = 10 / gameParams.alpha;
+              console.log(`📊 Logit Model: α=${gameParams.alpha}, σ=${gameParams.sigma}`);
+            }
+            console.log(`💰 Calculated Monopoly Price: $${monopolyPrice.toFixed(2)}`);
+          } else {
+            console.log('⚠️  Could not extract game parameters from page, using default monopoly price = $10');
+            monopolyPrice = 10;
+          }
+        }
+        
         // If auto-submit is enabled, start auto-submitting for all students
         if (AUTO_SUBMIT) {
           console.log('\n🤖 Auto-submit mode enabled! Students will automatically submit prices.');
           
           // Get game configuration from instructor page
           let ROUNDS = 2;
-          let priceBounds = { min: 0, max: 20 };
+          let priceBounds = { min: 0, max: Math.min(2 * monopolyPrice, 100) };
           
           try {
             const config = await instructorPage.evaluate(() => {
@@ -779,19 +867,11 @@ async function main() {
                                 bodyText.match(/Rounds:\s*(\d+)/i);
               const rounds = roundMatch ? parseInt(roundMatch[1]) : 2;
               
-              // Try to extract price bounds
-              const boundsMatch = bodyText.match(/\$(\d+)\s*-\s*\$(\d+)/);
-              const bounds = boundsMatch ? {
-                min: parseInt(boundsMatch[1]),
-                max: parseInt(boundsMatch[2])
-              } : { min: 0, max: 20 };
-              
-              return { rounds, bounds };
-            }).catch(() => ({ rounds: 2, bounds: { min: 0, max: 20 } }));
+              return { rounds };
+            }).catch(() => ({ rounds: 2 }));
             
             ROUNDS = config.rounds;
-            priceBounds = config.bounds;
-            console.log(`📊 Detected game config: ${ROUNDS} rounds, prices $${priceBounds.min}-$${priceBounds.max}`);
+            console.log(`📊 Detected game config: ${ROUNDS} rounds, prices $${priceBounds.min}-$${priceBounds.max.toFixed(2)} (based on monopoly price)`);
           } catch (e) {
             console.log(`⚠️  Could not detect game config, using defaults: ${ROUNDS} rounds`);
           }

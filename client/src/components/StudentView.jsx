@@ -130,6 +130,41 @@ export function StudentView({
                 If you price too high compared to your opponent, customers will switch to their product. 
                 Find the sweet spot!
               </p>
+              
+              <p style={{ 
+                marginTop: '1rem', 
+                marginBottom: '0',
+                padding: '0.75rem',
+                backgroundColor: '#fef3c7',
+                borderRadius: '4px',
+                border: '1px solid #fbbf24'
+              }}>
+                <strong>📌 For reference:</strong> If you were a monopolist (no competitor), you would charge {session?.config ? (() => {
+                  let monopolyPrice;
+                  if (session.config.modelType === 'hotelling') {
+                    const V = session.config.consumerValue;
+                    const t = session.config.travelCost;
+                    const x1 = session.config.x1;
+                    const leftReach = (V/2) / t;
+                    const rightReach = (V/2) / t;
+                    if (leftReach >= x1 && rightReach >= (100 - x1)) {
+                      monopolyPrice = V/2;
+                    } else if (leftReach < x1 && rightReach < (100 - x1)) {
+                      monopolyPrice = V/2;
+                    } else if (leftReach >= x1) {
+                      monopolyPrice = (V + t * x1) / 2;
+                    } else {
+                      monopolyPrice = (V + t * (100 - x1)) / 2;
+                    }
+                  } else {
+                    monopolyPrice = 10 / session.config.alpha;
+                  }
+                  if (monopolyPrice <= 0) {
+                    return '-';
+                  }
+                  return '$' + monopolyPrice.toFixed(2);
+                })() : '-'} to maximize your profit.
+              </p>
             </div>
 
             {/* Market Parameters */}
@@ -201,36 +236,6 @@ export function StudentView({
                       <strong>Number of Rounds:</strong> {session.config.rounds}
                     </div>
                   )}
-                </div>
-                
-                <div style={{
-                  marginTop: '1rem',
-                  padding: '0.75rem',
-                  backgroundColor: 'white',
-                  borderRadius: '4px',
-                  fontSize: '0.85rem',
-                  color: '#1e3a8a'
-                }}>
-                  <strong>📌 For reference:</strong> If you were a monopolist (no competitor), you would charge ${(() => {
-                    if (session.config.modelType === 'hotelling') {
-                      const V = session.config.consumerValue;
-                      const t = session.config.travelCost;
-                      const x1 = session.config.x1;
-                      const leftReach = (V/2) / t;
-                      const rightReach = (V/2) / t;
-                      if (leftReach >= x1 && rightReach >= (100 - x1)) {
-                        return (V/2).toFixed(2);
-                      } else if (leftReach < x1 && rightReach < (100 - x1)) {
-                        return (V/2).toFixed(2);
-                      } else if (leftReach >= x1) {
-                        return ((V + t * x1) / 2).toFixed(2);
-                      } else {
-                        return ((V + t * (100 - x1)) / 2).toFixed(2);
-                      }
-                    } else {
-                      return (10 / session.config.alpha).toFixed(2);
-                    }
-                  })()} to maximize your profit.
                 </div>
               </div>
             )}
@@ -1021,7 +1026,7 @@ export function StudentView({
                     <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem', textAlign: 'center' }}>{item.price.toFixed(1)}</td>
                     <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>{item.opponentPrice?.toFixed(1) || '-'}</td>
                     <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem', textAlign: 'center' }}>{yourShareStr}%</td>
-                    <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>{item.opponentShare ? oppShareStr + '%' : '-'}</td>
+                    <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>{item.opponentShare !== undefined && item.opponentShare !== null ? oppShareStr + '%' : '-'}</td>
                     <td style={{ fontWeight: 600, color: '#10b981', padding: '0.5rem 0.25rem', textAlign: 'center' }}>${item.profit.toFixed(0)}</td>
                     <td style={{ color: '#6b7280', padding: '0.5rem 0.25rem', textAlign: 'center' }}>${item.opponentProfit?.toFixed(0) || '-'}</td>
                   </tr>

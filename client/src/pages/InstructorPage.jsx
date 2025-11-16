@@ -18,13 +18,13 @@ const DEFAULT_CONFIG = {
   differentTimePerRound: false,
   roundTimes: [],
   marketSize: 100,
-  modelType: 'logit', // 'logit' or 'hotelling'
+  modelType: 'hotelling', // 'logit' or 'hotelling'
   // Logit model parameters
   alpha: 1,
   sigma: 5,
   // Hotelling model parameters
   travelCost: 1,
-  consumerValue: 10,
+  consumerValue: 100,
   x1: 25,
   x2: 75,
   priceMin: 0,

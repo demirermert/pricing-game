@@ -220,6 +220,24 @@ export function InstructorDashboard({
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <span className="status-tag">{session?.status?.toUpperCase()}</span>
             </div>
+            {/* Parameters display */}
+            {session?.config && (
+              <div style={{
+                fontSize: '0.75rem',
+                color: '#6b7280',
+                marginTop: '0.5rem'
+              }}>
+                {session.config.modelType === 'hotelling' ? (
+                  <>
+                    Hotelling Model | t=${session.config.travelCost} | V=${session.config.consumerValue} | x₁={session.config.x1} | x₂={session.config.x2}
+                  </>
+                ) : (
+                  <>
+                    Logit Model | α={session.config.alpha} | σ={session.config.sigma} | Market Size: {session.config.marketSize}
+                  </>
+                )}
+              </div>
+            )}
           </div>
           
           <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
