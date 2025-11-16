@@ -9,6 +9,7 @@ let STUDENT_URL = 'http://localhost:5173';
 let NUM_STUDENTS = 6; // Default number of students (must be even for pairing)
 let AUTO_SUBMIT = false;
 let USE_ONLINE = false;
+let NUM_ROUNDS = null; // Default: null means use game's default settings
 
 // Check for flags
 for (let i = 2; i < process.argv.length; i++) {
@@ -24,6 +25,12 @@ for (let i = 2; i < process.argv.length; i++) {
     USE_ONLINE = true;
     INSTRUCTOR_URL = 'https://games-theta-swart.vercel.app/instructor';
     STUDENT_URL = 'https://games-theta-swart.vercel.app';
+  } else if (arg === '-r' || arg === '--rounds') {
+    // Check if next argument is a number
+    if (i + 1 < process.argv.length && !isNaN(process.argv[i + 1])) {
+      NUM_ROUNDS = parseInt(process.argv[i + 1], 10);
+      i++; // Skip the next argument since we used it
+    }
   }
 }
 
@@ -33,7 +40,7 @@ if (NUM_STUDENTS % 2 !== 0) {
   console.log(`⚠️  Adjusted to ${NUM_STUDENTS} students (must be even for pairing)`);
 }
 
-console.log(`Configuration: ${NUM_STUDENTS} students, Auto-submit: ${AUTO_SUBMIT}, Online: ${USE_ONLINE}`);
+console.log(`Configuration: ${NUM_STUDENTS} students, Auto-submit: ${AUTO_SUBMIT}, Online: ${USE_ONLINE}${NUM_ROUNDS ? `, Rounds: ${NUM_ROUNDS}` : ''}`);
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -115,6 +122,25 @@ async function setupInstructor(browser) {
     
     // Wait for form to expand
     await delay(1000);
+    
+    // If NUM_ROUNDS is specified, set the rounds input
+    if (NUM_ROUNDS !== null) {
+      console.log(`🔢 Setting number of rounds to ${NUM_ROUNDS}...`);
+      try {
+        const roundsInput = await instructorPage.$('input[type="number"]').catch(() => null);
+        if (roundsInput) {
+          // Clear existing value and set new value
+          await roundsInput.click({ clickCount: 3 }); // Select all
+          await roundsInput.type(String(NUM_ROUNDS));
+          console.log(`✅ Set rounds to ${NUM_ROUNDS}`);
+        } else {
+          console.log('⚠️  Could not find rounds input field');
+        }
+      } catch (e) {
+        console.log('⚠️  Error setting rounds:', e.message);
+      }
+      await delay(500);
+    }
     
     // Look for "Create Session" submit button
     console.log('📝 Looking for "Create Session" button...');
@@ -615,6 +641,7 @@ async function main() {
     } else {
       console.log('💡 Tip: Use -a or --auto flag to enable auto-submit for students');
       console.log('💡 Example: npm run test-game -- -a 6 (opens 6 students with auto-submit)');
+      console.log('💡 Flags: -r [number] to set rounds, -o for online mode');
     }
     console.log('🖥️  Browser windows will remain open for testing');
     console.log('⏹️  Press Ctrl+C to close all windows and exit\n');

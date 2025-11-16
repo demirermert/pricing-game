@@ -508,7 +508,7 @@ export function StudentView({
             ⏳ Waiting for other students to submit their prices...
           </p>
           <p style={{ margin: '0.5rem 0 0 0', color: '#1e3a8a', fontSize: '0.875rem' }}>
-            Results will appear when everyone has submitted or time runs out
+            Results will appear when time runs out
           </p>
         </div>
       )}

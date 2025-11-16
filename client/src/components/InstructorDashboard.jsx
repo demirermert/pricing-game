@@ -476,8 +476,19 @@ export function InstructorDashboard({
               
               {/* Y-axis labels */}
               {(() => {
-                const maxPrice = session?.config?.priceBounds?.max || 100;
-                const minPrice = session?.config?.priceBounds?.min || 0;
+                // Calculate max from actual data (highest value + standard deviation)
+                const dataMax = roundStats.length > 0 
+                  ? Math.max(...roundStats.map(stat => stat.avg + stat.sd))
+                  : (session?.config?.priceBounds?.max || 100);
+                const dataMin = roundStats.length > 0
+                  ? Math.min(...roundStats.map(stat => Math.max(0, stat.avg - stat.sd)))
+                  : (session?.config?.priceBounds?.min || 0);
+                
+                // Add some padding (10%) to the range
+                const padding = (dataMax - dataMin) * 0.1;
+                const maxPrice = Math.ceil(dataMax + padding);
+                const minPrice = Math.max(0, Math.floor(dataMin - padding));
+                
                 const yLabels = [];
                 const numLabels = 6;
                 for (let i = 0; i <= numLabels; i++) {
@@ -516,13 +527,25 @@ export function InstructorDashboard({
               })()}
               
               {/* Data points and lines */}
-              {roundStats.map((stat, index) => {
+              {(() => {
+                // Calculate max/min from actual data (same as y-axis)
+                const dataMax = roundStats.length > 0 
+                  ? Math.max(...roundStats.map(stat => stat.avg + stat.sd))
+                  : (session?.config?.priceBounds?.max || 100);
+                const dataMin = roundStats.length > 0
+                  ? Math.min(...roundStats.map(stat => Math.max(0, stat.avg - stat.sd)))
+                  : (session?.config?.priceBounds?.min || 0);
+                
+                // Add some padding (10%) to the range
+                const padding = (dataMax - dataMin) * 0.1;
+                const maxPrice = Math.ceil(dataMax + padding);
+                const minPrice = Math.max(0, Math.floor(dataMin - padding));
+                const priceRange = maxPrice - minPrice;
+                
+                return roundStats.map((stat, index) => {
                 const totalRounds = session.config.rounds;
                 const chartWidth = 870;
                 const x = 80 + (stat.round - 1) * (chartWidth / (totalRounds - 1 || 1));
-                const maxPrice = session?.config?.priceBounds?.max || 100;
-                const minPrice = session?.config?.priceBounds?.min || 0;
-                const priceRange = maxPrice - minPrice;
                 
                 const yCenter = 280 - ((stat.avg - minPrice) / priceRange) * 250;
                 const yTop = 280 - ((stat.avg + stat.sd - minPrice) / priceRange) * 250;
@@ -630,7 +653,8 @@ export function InstructorDashboard({
                     )}
                   </g>
                 );
-              })}
+              });
+              })()}
               
               {/* Axis labels */}
               <text x="500" y="330" textAnchor="middle" fill="#374151" fontSize="16" fontWeight="600">
@@ -720,7 +744,7 @@ export function InstructorDashboard({
                             borderRadius: '8px',
                             padding: '1rem',
                             boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                            zIndex: 1000,
+                            zIndex: 9999,
                             minWidth: '400px'
                           }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem', color: '#374151' }}>
