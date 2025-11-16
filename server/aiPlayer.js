@@ -27,6 +27,8 @@ export async function getAIPriceDecision(config, history = [], opponentHistory =
     // Build the game description
     const gameDescription = buildGamePrompt(config, history, opponentHistory);
     
+    console.log(`[AI Player] Round ${history.length + 1}: History has ${history.length} entries`);
+    
     // Call ChatGPT
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -40,11 +42,12 @@ export async function getAIPriceDecision(config, history = [], opponentHistory =
           content: gameDescription
         }
       ],
-      temperature: 0.7,
+      temperature: 1.0,
       max_tokens: 50
     });
 
     const responseText = completion.choices[0].message.content.trim();
+    console.log(`[AI Player] ChatGPT raw response: "${responseText}"`);
     
     // Extract the number from the response
     const priceMatch = responseText.match(/[\d.]+/);
