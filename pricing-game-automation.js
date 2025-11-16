@@ -1011,14 +1011,16 @@ async function main() {
           // Wait a moment for all data to be rendered
           await delay(2000);
           
-          // Extract final game data from instructor page
-          const gameReport = await instructorPage.evaluate(() => {
+          // Extract test integrity data from instructor page
+          const testReport = await instructorPage.evaluate(() => {
             const report = {
               sessionCode: null,
               totalRounds: 0,
-              players: [],
-              pairs: [],
-              averagePrices: [],
+              expectedRounds: 0,
+              totalStudents: 0,
+              playersData: [],
+              offlinePlayers: [],
+              awayPlayers: [],
               modelInfo: null
             };
             
@@ -1028,104 +1030,180 @@ async function main() {
               report.sessionCode = urlMatch[1];
             }
             
-            // Get model info from parameter display
+            // Get model info
             const paramDivs = Array.from(document.querySelectorAll('div'));
             for (const div of paramDivs) {
               const text = div.textContent;
-              if (text.includes('Hotelling Model')) {
+              if (text.includes('Hotelling Model') || text.includes('Logit Model')) {
                 report.modelInfo = text.trim();
-              } else if (text.includes('Logit Model')) {
-                report.modelInfo = text.trim();
-              }
-            }
-            
-            // Get leaderboard data (top 10)
-            const leaderboardRows = Array.from(document.querySelectorAll('table tbody tr'));
-            leaderboardRows.forEach((row, index) => {
-              const cells = row.querySelectorAll('td');
-              if (cells.length >= 2) {
-                const name = cells[0]?.textContent.trim();
-                const profit = cells[1]?.textContent.trim();
-                if (name && profit) {
-                  report.players.push({
-                    rank: index + 1,
-                    name,
-                    totalProfit: profit
-                  });
-                }
-              }
-            });
-            
-            // Get pair profits (from "Total Profit by Pair" table)
-            const allTables = Array.from(document.querySelectorAll('table'));
-            for (const table of allTables) {
-              const headers = Array.from(table.querySelectorAll('th'));
-              const hasPairColumn = headers.some(h => h.textContent.includes('Pair'));
-              
-              if (hasPairColumn) {
-                const rows = Array.from(table.querySelectorAll('tbody tr'));
-                rows.forEach(row => {
-                  const cells = row.querySelectorAll('td');
-                  if (cells.length >= 4) {
-                    report.pairs.push({
-                      pairId: cells[0]?.textContent.trim(),
-                      playerA: cells[1]?.textContent.trim(),
-                      playerB: cells[2]?.textContent.trim(),
-                      totalProfit: cells[3]?.textContent.trim()
-                    });
-                  }
-                });
                 break;
               }
             }
             
-            // Try to detect number of rounds
-            const roundTexts = document.body.textContent.match(/Round \d+ of (\d+)/);
+            // Try to detect number of rounds played
+            const roundTexts = document.body.textContent.match(/Round (\d+) of (\d+)/);
             if (roundTexts) {
               report.totalRounds = parseInt(roundTexts[1]);
+              report.expectedRounds = parseInt(roundTexts[2]);
             }
+            
+            // Get player connection status from the student list
+            // Look for the students list section
+            const studentListHeaders = Array.from(document.querySelectorAll('h3, h4'));
+            let studentsSection = null;
+            
+            for (const header of studentListHeaders) {
+              if (header.textContent.includes('Students') || header.textContent.includes('Players')) {
+                studentsSection = header.parentElement;
+                break;
+              }
+            }
+            
+            if (studentsSection) {
+              // Find all player rows (they typically have status indicators)
+              const playerDivs = Array.from(studentsSection.querySelectorAll('div'));
+              
+              playerDivs.forEach(div => {
+                const text = div.textContent;
+                
+                // Look for status indicators (online/offline/away)
+                const hasOnline = text.toLowerCase().includes('online');
+                const hasOffline = text.toLowerCase().includes('offline');
+                const hasAway = text.toLowerCase().includes('away');
+                
+                // Extract player name (usually before the status)
+                const playerMatch = text.match(/([A-Za-z]+\s+\d+)/);
+                if (playerMatch) {
+                  const playerName = playerMatch[1];
+                  
+                  let status = 'unknown';
+                  if (hasOnline) status = 'online';
+                  else if (hasOffline) status = 'offline';
+                  else if (hasAway) status = 'away';
+                  
+                  report.playersData.push({
+                    name: playerName,
+                    status: status
+                  });
+                  
+                  if (status === 'offline') {
+                    report.offlinePlayers.push(playerName);
+                  } else if (status === 'away') {
+                    report.awayPlayers.push(playerName);
+                  }
+                }
+              });
+            }
+            
+            report.totalStudents = report.playersData.length;
+            
+            // Get leaderboard to check for missing data
+            const leaderboardRows = Array.from(document.querySelectorAll('table tbody tr'));
+            const playersWithScores = [];
+            
+            leaderboardRows.forEach(row => {
+              const cells = row.querySelectorAll('td');
+              if (cells.length >= 2) {
+                const name = cells[0]?.textContent.trim();
+                const profit = cells[1]?.textContent.trim();
+                if (name && profit && profit !== '-' && profit !== '0') {
+                  playersWithScores.push(name);
+                }
+              }
+            });
+            
+            report.playersWithScores = playersWithScores.length;
             
             return report;
           }).catch(() => null);
           
-          // Generate and display report
-          console.log('📋 GAME REPORT');
+          // Generate and display test integrity report
+          console.log('📋 TEST INTEGRITY REPORT');
           console.log('='.repeat(70));
           
-          if (gameReport) {
-            if (gameReport.sessionCode) {
-              console.log(`Session Code: ${gameReport.sessionCode}`);
-            }
-            if (gameReport.totalRounds) {
-              console.log(`Total Rounds: ${gameReport.totalRounds}`);
-            }
-            if (gameReport.modelInfo) {
-              console.log(`Model: ${gameReport.modelInfo}`);
-            }
-            console.log(`Participants: ${NUM_STUDENTS} students`);
+          if (testReport) {
+            console.log(`Session Code: ${testReport.sessionCode || 'N/A'}`);
+            console.log(`Model: ${testReport.modelInfo || 'N/A'}`);
             console.log();
             
-            // Top performers
-            if (gameReport.players.length > 0) {
-              console.log('🏆 TOP PERFORMERS:');
-              console.log('-'.repeat(70));
-              gameReport.players.slice(0, 10).forEach(player => {
-                const medal = player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '  ';
-                console.log(`${medal} ${player.rank}. ${player.name.padEnd(30)} ${player.totalProfit}`);
+            // Round completion check
+            console.log('📊 GAME COMPLETION:');
+            console.log('-'.repeat(70));
+            if (testReport.totalRounds > 0 && testReport.expectedRounds > 0) {
+              if (testReport.totalRounds === testReport.expectedRounds) {
+                console.log(`✅ All rounds completed: ${testReport.totalRounds}/${testReport.expectedRounds}`);
+              } else {
+                console.log(`⚠️  Incomplete: ${testReport.totalRounds}/${testReport.expectedRounds} rounds`);
+              }
+            } else {
+              console.log(`⚠️  Could not verify round completion`);
+            }
+            console.log();
+            
+            // Student participation check
+            console.log('👥 STUDENT PARTICIPATION:');
+            console.log('-'.repeat(70));
+            console.log(`Total Students: ${testReport.totalStudents || NUM_STUDENTS}`);
+            
+            const onlineCount = testReport.playersData.filter(p => p.status === 'online').length;
+            const offlineCount = testReport.offlinePlayers.length;
+            const awayCount = testReport.awayPlayers.length;
+            
+            if (onlineCount > 0) {
+              console.log(`✅ Online: ${onlineCount} students`);
+            }
+            if (awayCount > 0) {
+              console.log(`⚠️  Away: ${awayCount} students`);
+              testReport.awayPlayers.forEach(name => {
+                console.log(`   - ${name}`);
               });
-              console.log();
+            }
+            if (offlineCount > 0) {
+              console.log(`❌ Offline: ${offlineCount} students`);
+              testReport.offlinePlayers.forEach(name => {
+                console.log(`   - ${name}`);
+              });
             }
             
-            // Pair performance
-            if (gameReport.pairs.length > 0) {
-              console.log('👥 PAIR PERFORMANCE:');
-              console.log('-'.repeat(70));
-              gameReport.pairs.forEach(pair => {
-                console.log(`${pair.pairId}: ${pair.playerA} & ${pair.playerB}`);
-                console.log(`   Total Profit: ${pair.totalProfit}`);
-              });
-              console.log();
+            if (offlineCount === 0 && awayCount === 0) {
+              console.log(`✅ All students remained connected throughout the game`);
             }
+            console.log();
+            
+            // Data integrity check
+            console.log('💾 DATA INTEGRITY:');
+            console.log('-'.repeat(70));
+            if (testReport.playersWithScores !== undefined) {
+              const expectedPlayers = testReport.totalStudents || NUM_STUDENTS;
+              if (testReport.playersWithScores === expectedPlayers) {
+                console.log(`✅ All ${expectedPlayers} students have recorded scores`);
+              } else {
+                console.log(`⚠️  ${testReport.playersWithScores}/${expectedPlayers} students have scores`);
+                console.log(`   ${expectedPlayers - testReport.playersWithScores} students may have missing data`);
+              }
+            }
+            console.log();
+            
+            // Overall test result
+            console.log('🎯 OVERALL TEST RESULT:');
+            console.log('-'.repeat(70));
+            const allRoundsComplete = testReport.totalRounds === testReport.expectedRounds;
+            const noOffline = offlineCount === 0;
+            const allHaveScores = testReport.playersWithScores === (testReport.totalStudents || NUM_STUDENTS);
+            
+            if (allRoundsComplete && noOffline && allHaveScores) {
+              console.log('✅ TEST PASSED - Session ran perfectly!');
+              console.log('   • All rounds completed');
+              console.log('   • All students remained online');
+              console.log('   • All data recorded successfully');
+            } else {
+              console.log('⚠️  TEST HAD ISSUES:');
+              if (!allRoundsComplete) console.log('   • Rounds did not complete as expected');
+              if (!noOffline) console.log(`   • ${offlineCount} student(s) went offline`);
+              if (!allHaveScores) console.log('   • Some students have missing score data');
+            }
+          } else {
+            console.log('❌ Could not extract test data from instructor page');
           }
           
           console.log('='.repeat(70));
