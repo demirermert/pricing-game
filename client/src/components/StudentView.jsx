@@ -1064,7 +1064,7 @@ export function StudentView({
               <rect x="0" y="0" width="800" height="400" fill="white" />
               
               {/* Y-axis */}
-              <line x1="60" y1="30" x2="60" y2="350" stroke="#d1d5db" strokeWidth="2" />
+              <line x1="60" y1="60" x2="60" y2="350" stroke="#d1d5db" strokeWidth="2" />
               {/* X-axis */}
               <line x1="60" y1="350" x2="760" y2="350" stroke="#d1d5db" strokeWidth="2" />
               
@@ -1079,7 +1079,7 @@ export function StudentView({
                 
                 for (let i = 0; i <= numLabels; i++) {
                   const value = minPrice + (priceRange * i / numLabels);
-                  const y = 350 - (i / numLabels) * 320;
+                  const y = 350 - (i / numLabels) * 290;
                   yLabels.push(
                     <g key={`ylabel-${i}`}>
                       <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
@@ -1123,7 +1123,7 @@ export function StudentView({
                     const chartWidth = 700;
                     const spacing = chartWidth / (numRounds - 1);
                     const x = 60 + spacing * index;
-                    const y = 350 - ((item.price - minPrice) / priceRange) * 320;
+                    const y = 350 - ((item.price - minPrice) / priceRange) * 290;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1148,7 +1148,7 @@ export function StudentView({
                     const chartWidth = 700;
                     const spacing = chartWidth / (numRounds - 1);
                     const x = 60 + spacing * index;
-                    const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 320;
+                    const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 290;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1171,7 +1171,7 @@ export function StudentView({
                 const chartWidth = 700;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
                 const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 350 - ((item.price - minPrice) / priceRange) * 320;
+                const y = 350 - ((item.price - minPrice) / priceRange) * 290;
                 
                 return (
                   <circle
@@ -1197,7 +1197,7 @@ export function StudentView({
                 const chartWidth = 700;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
                 const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 320;
+                const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 290;
                 
                 return (
                   <circle
