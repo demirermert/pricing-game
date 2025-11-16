@@ -1053,13 +1053,13 @@ export function StudentView({
           }}>
             📊 Price History
           </h3>
-          <div style={{
+          <div className="price-chart-container" style={{
             padding: '1.5rem',
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
             backgroundColor: 'white'
           }}>
-            <svg width="100%" height="400" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" style={{ minHeight: '400px' }}>
+            <svg width="100%" height="400" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
               {/* Chart background */}
               <rect x="0" y="0" width="800" height="400" fill="white" />
               
