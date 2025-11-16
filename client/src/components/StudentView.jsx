@@ -1039,6 +1039,197 @@ export function StudentView({
           </div>
         </div>
       )}
+
+      {/* Price History Chart */}
+      {history && history.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3 style={{ 
+            margin: '0 0 1rem 0',
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: '#1f2937'
+          }}>
+            📊 Price History
+          </h3>
+          <div style={{
+            padding: '1.5rem',
+            border: '2px solid #e5e7eb',
+            borderRadius: '8px',
+            backgroundColor: 'white'
+          }}>
+            <svg width="100%" height="300" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+              {/* Chart background */}
+              <rect x="0" y="0" width="800" height="300" fill="white" />
+              
+              {/* Y-axis */}
+              <line x1="60" y1="20" x2="60" y2="250" stroke="#d1d5db" strokeWidth="2" />
+              {/* X-axis */}
+              <line x1="60" y1="250" x2="760" y2="250" stroke="#d1d5db" strokeWidth="2" />
+              
+              {/* Y-axis labels (Price) */}
+              {(() => {
+                const allPrices = history.flatMap(h => [h.price || 0, h.opponentPrice || 0]);
+                const maxPrice = Math.max(...allPrices, 0);
+                const minPrice = Math.min(...allPrices, 0);
+                const priceRange = maxPrice - minPrice || 1;
+                const yLabels = [];
+                const numLabels = 5;
+                
+                for (let i = 0; i <= numLabels; i++) {
+                  const value = minPrice + (priceRange * i / numLabels);
+                  const y = 250 - (i / numLabels) * 230;
+                  yLabels.push(
+                    <g key={`ylabel-${i}`}>
+                      <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
+                      <line x1="60" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
+                      <text x="52" y={y + 4} textAnchor="end" fill="#6b7280" fontSize="11" fontWeight="500">
+                        ${value.toFixed(1)}
+                      </text>
+                    </g>
+                  );
+                }
+                return yLabels;
+              })()}
+              
+              {/* X-axis labels (Rounds) */}
+              {history.map((item, index) => {
+                const numRounds = history.length;
+                const chartWidth = 700;
+                const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
+                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                
+                return (
+                  <g key={`xlabel-${item.round}`}>
+                    <line x1={x} y1="250" x2={x} y2="255" stroke="#9ca3af" strokeWidth="1" />
+                    <text x={x} y="268" textAnchor="middle" fill="#6b7280" fontSize="11" fontWeight="500">
+                      R{item.round}
+                    </text>
+                  </g>
+                );
+              })}
+              
+              {/* Your prices line (blue) */}
+              {history.length > 1 && (
+                <polyline
+                  points={history.map((item, index) => {
+                    const allPrices = history.flatMap(h => [h.price || 0, h.opponentPrice || 0]);
+                    const maxPrice = Math.max(...allPrices, 0);
+                    const minPrice = Math.min(...allPrices, 0);
+                    const priceRange = maxPrice - minPrice || 1;
+                    
+                    const numRounds = history.length;
+                    const chartWidth = 700;
+                    const spacing = chartWidth / (numRounds - 1);
+                    const x = 60 + spacing * index;
+                    const y = 250 - ((item.price - minPrice) / priceRange) * 230;
+                    
+                    return `${x},${y}`;
+                  }).join(' ')}
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              
+              {/* Opponent prices line (orange) */}
+              {history.length > 1 && (
+                <polyline
+                  points={history.map((item, index) => {
+                    const allPrices = history.flatMap(h => [h.price || 0, h.opponentPrice || 0]);
+                    const maxPrice = Math.max(...allPrices, 0);
+                    const minPrice = Math.min(...allPrices, 0);
+                    const priceRange = maxPrice - minPrice || 1;
+                    
+                    const numRounds = history.length;
+                    const chartWidth = 700;
+                    const spacing = chartWidth / (numRounds - 1);
+                    const x = 60 + spacing * index;
+                    const y = 250 - ((item.opponentPrice - minPrice) / priceRange) * 230;
+                    
+                    return `${x},${y}`;
+                  }).join(' ')}
+                  fill="none"
+                  stroke="#f59e0b"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              
+              {/* Data points for your prices */}
+              {history.map((item, index) => {
+                const allPrices = history.flatMap(h => [h.price || 0, h.opponentPrice || 0]);
+                const maxPrice = Math.max(...allPrices, 0);
+                const minPrice = Math.min(...allPrices, 0);
+                const priceRange = maxPrice - minPrice || 1;
+                
+                const numRounds = history.length;
+                const chartWidth = 700;
+                const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
+                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                const y = 250 - ((item.price - minPrice) / priceRange) * 230;
+                
+                return (
+                  <circle
+                    key={`your-${item.round}`}
+                    cx={x}
+                    cy={y}
+                    r="5"
+                    fill="#3b82f6"
+                    stroke="white"
+                    strokeWidth="2"
+                  />
+                );
+              })}
+              
+              {/* Data points for opponent prices */}
+              {history.map((item, index) => {
+                const allPrices = history.flatMap(h => [h.price || 0, h.opponentPrice || 0]);
+                const maxPrice = Math.max(...allPrices, 0);
+                const minPrice = Math.min(...allPrices, 0);
+                const priceRange = maxPrice - minPrice || 1;
+                
+                const numRounds = history.length;
+                const chartWidth = 700;
+                const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
+                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                const y = 250 - ((item.opponentPrice - minPrice) / priceRange) * 230;
+                
+                return (
+                  <circle
+                    key={`opp-${item.round}`}
+                    cx={x}
+                    cy={y}
+                    r="5"
+                    fill="#f59e0b"
+                    stroke="white"
+                    strokeWidth="2"
+                  />
+                );
+              })}
+              
+              {/* Legend */}
+              <g transform="translate(620, 20)">
+                <circle cx="10" cy="0" r="5" fill="#3b82f6" stroke="white" strokeWidth="2" />
+                <text x="20" y="4" fill="#374151" fontSize="11" fontWeight="500">Your Price</text>
+                
+                <circle cx="10" cy="20" r="5" fill="#f59e0b" stroke="white" strokeWidth="2" />
+                <text x="20" y="24" fill="#374151" fontSize="11" fontWeight="500">Opponent Price</text>
+              </g>
+              
+              {/* Axis labels */}
+              <text x="20" y="140" textAnchor="middle" fill="#6b7280" fontSize="12" fontWeight="600" transform="rotate(-90, 20, 140)">
+                Price ($)
+              </text>
+              <text x="410" y="290" textAnchor="middle" fill="#6b7280" fontSize="12" fontWeight="600">
+                Round
+              </text>
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
