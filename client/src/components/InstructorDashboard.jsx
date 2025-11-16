@@ -779,7 +779,7 @@ export function InstructorDashboard({
                                       color: '#1f2937',
                                       borderBottom: '1px solid #d1d5db'
                                     }}>
-                                      ${price.toFixed(2)}
+                                      ${price.toFixed(1)}
                                     </td>
                                   ))}
                                 </tr>
@@ -799,7 +799,7 @@ export function InstructorDashboard({
                                       fontWeight: 600,
                                       color: '#1f2937'
                                     }}>
-                                      ${price.toFixed(2)}
+                                      ${price.toFixed(1)}
                                     </td>
                                   ))}
                                 </tr>
