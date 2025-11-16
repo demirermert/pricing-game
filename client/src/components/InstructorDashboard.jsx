@@ -731,22 +731,32 @@ export function InstructorDashboard({
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981', position: 'relative' }}>
                         ${pair.totalProfit.toFixed(2)}
-                        
-                        {/* Price History Tooltip */}
-                        {isHovered && pair.priceHistoryA && pair.priceHistoryA.length > 0 && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            right: '0',
-                            marginTop: '0.5rem',
-                            backgroundColor: 'white',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '8px',
-                            padding: '1rem',
-                            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                            zIndex: 9999,
-                            minWidth: '400px'
-                          }}>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Price History Tooltip - Rendered outside table */}
+          {hoveredPair && pairProfits.find(p => p.pairId === hoveredPair) && (() => {
+            const pair = pairProfits.find(p => p.pairId === hoveredPair);
+            return pair.priceHistoryA && pair.priceHistoryA.length > 0 && (
+              <div style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'white',
+                border: '2px solid #3b82f6',
+                borderRadius: '8px',
+                padding: '1rem',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+                zIndex: 9999,
+                minWidth: '400px',
+                maxWidth: '600px'
+              }}>
                             <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem', color: '#374151' }}>
                               💰 Price History
                             </div>
@@ -827,14 +837,8 @@ export function InstructorDashboard({
                               </tbody>
                             </table>
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        );
+                      })()}
         </div>
       )}
 
