@@ -860,22 +860,23 @@ export function InstructorDashboard({
                         position: 'relative'
                       }}
                     >
-                      <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
-                        {originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank}
-                      </td>
                       <td 
                         style={{ 
                           textAlign: 'center', 
-                          fontWeight: 600, 
-                          fontSize: '1rem',
+                          fontWeight: 700, 
+                          fontSize: '1.2rem', 
+                          color: rankColor, 
+                          padding: '0.75rem', 
+                          borderBottom: '1px solid #e5e7eb',
                           cursor: 'pointer',
-                          padding: '0.75rem',
-                          transition: 'background-color 0.2s',
-                          borderBottom: '1px solid #e5e7eb'
+                          transition: 'background-color 0.2s'
                         }}
                         onMouseEnter={() => setHoveredPair(pair.pairId)}
                         onMouseLeave={() => setHoveredPair(null)}
                       >
+                        {originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank}
+                      </td>
+                      <td style={{ textAlign: 'center', fontWeight: 600, fontSize: '1rem', padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         Pair {pair.pairId.toString().replace('pair-', '')}
                       </td>
                       <td style={{ fontWeight: 500, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
