@@ -765,7 +765,7 @@ export function InstructorDashboard({
                         onMouseEnter={() => setHoveredPair(pair.pairId)}
                         onMouseLeave={() => setHoveredPair(null)}
                       >
-                        Pair {index + 1}
+                        Pair {pair.pairId}
                       </td>
                       <td style={{ fontWeight: 500 }}>
                         👤 {pair.playerA}
