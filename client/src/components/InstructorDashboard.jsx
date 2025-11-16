@@ -746,25 +746,25 @@ export function InstructorDashboard({
                       key={pair.pairId}
                       style={{ 
                         backgroundColor,
-                        cursor: 'pointer',
                         transition: 'all 0.2s',
                         position: 'relative'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = index < 3 ? backgroundColor : '#f9fafb';
-                        e.currentTarget.style.transform = 'scale(1.01)';
-                        setHoveredPair(pair.pairId);
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = backgroundColor;
-                        e.currentTarget.style.transform = 'scale(1)';
-                        setHoveredPair(null);
                       }}
                     >
                       <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor }}>
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                       </td>
-                      <td style={{ textAlign: 'center', fontWeight: 600, fontSize: '1rem' }}>
+                      <td 
+                        style={{ 
+                          textAlign: 'center', 
+                          fontWeight: 600, 
+                          fontSize: '1rem',
+                          cursor: 'pointer',
+                          padding: '0.75rem',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={() => setHoveredPair(pair.pairId)}
+                        onMouseLeave={() => setHoveredPair(null)}
+                      >
                         Pair {index + 1}
                       </td>
                       <td style={{ fontWeight: 500 }}>
