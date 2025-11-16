@@ -363,7 +363,7 @@ export function StudentView({
         </div>
       )}
 
-      {sessionStatus !== 'lobby' && sessionStatus !== 'complete' && (
+      {sessionStatus !== 'lobby' && sessionStatus !== 'complete' && !nextRoundCountdown && (
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
