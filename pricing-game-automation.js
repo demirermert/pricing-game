@@ -22,8 +22,8 @@ for (let i = 2; i < process.argv.length; i++) {
     }
   } else if (arg === '-o' || arg === '--online') {
     USE_ONLINE = true;
-    INSTRUCTOR_URL = 'https://your-pricing-game.vercel.app/instructor';
-    STUDENT_URL = 'https://your-pricing-game.vercel.app';
+    INSTRUCTOR_URL = 'https://games-theta-swart.vercel.app/instructor';
+    STUDENT_URL = 'https://games-theta-swart.vercel.app';
   }
 }
 
