@@ -837,7 +837,7 @@ export function InstructorDashboard({
                   <g key={`xlabel-${pair.pairIndex}`}>
                     <line x1={x} y1="330" x2={x} y2="335" stroke="#9ca3af" strokeWidth="1" />
                     <text x={x} y="350" textAnchor="middle" fill="#6b7280" fontSize="13" fontWeight="600">
-                      Pair {pair.pairIndex}
+                      {pair.pairIndex}
                     </text>
                   </g>
                 );
@@ -883,16 +883,6 @@ export function InstructorDashboard({
                       onMouseEnter={() => setHoveredPlayerPoint(`${pair.pairIndex}-A`)}
                       onMouseLeave={() => setHoveredPlayerPoint(null)}
                     />
-                    <text
-                      x={x}
-                      y={yA - 15}
-                      textAnchor="middle"
-                      fill="#1e40af"
-                      fontSize="11"
-                      fontWeight="600"
-                    >
-                      ${pair.profitA.toFixed(0)}
-                    </text>
                     
                     {/* Tooltip for Player A */}
                     {hoveredPlayerPoint === `${pair.pairIndex}-A` && (
@@ -931,16 +921,6 @@ export function InstructorDashboard({
                       onMouseEnter={() => setHoveredPlayerPoint(`${pair.pairIndex}-B`)}
                       onMouseLeave={() => setHoveredPlayerPoint(null)}
                     />
-                    <text
-                      x={x}
-                      y={yB - 15}
-                      textAnchor="middle"
-                      fill="#059669"
-                      fontSize="11"
-                      fontWeight="600"
-                    >
-                      ${pair.profitB.toFixed(0)}
-                    </text>
                     
                     {/* Tooltip for Player B */}
                     {hoveredPlayerPoint === `${pair.pairIndex}-B` && (
