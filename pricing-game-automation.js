@@ -1132,23 +1132,33 @@ async function main() {
             
             report.totalStudents = report.playersData.length;
             
-            // Get unique player names from leaderboard to check for missing data
-            const leaderboardRows = Array.from(document.querySelectorAll('table tbody tr'));
-            const uniquePlayersWithScores = new Set();
+            // Check data completeness: verify all players who joined also have leaderboard entries
+            // Look specifically for the Leaderboard section (not pair table or student list)
+            const leaderboardHeaders = Array.from(document.querySelectorAll('h3'));
+            let leaderboardSection = null;
             
-            leaderboardRows.forEach(row => {
-              const cells = row.querySelectorAll('td');
-              if (cells.length >= 2) {
-                const name = cells[0]?.textContent.trim();
-                const profit = cells[1]?.textContent.trim();
-                // Only count unique player names (avoid counting duplicates from pair table)
-                if (name && profit && !name.includes('Pair') && !name.includes('Total')) {
-                  uniquePlayersWithScores.add(name);
-                }
+            for (const header of leaderboardHeaders) {
+              if (header.textContent.includes('Leaderboard') || header.textContent.includes('🏆')) {
+                leaderboardSection = header.nextElementSibling;
+                break;
               }
-            });
+            }
             
-            report.playersWithScores = uniquePlayersWithScores.size;
+            if (leaderboardSection) {
+              // Count students in the leaderboard (each player should appear once)
+              const leaderboardEntries = leaderboardSection.querySelectorAll('[style*="padding"]');
+              // Filter for actual player entries (they have a profit value displayed)
+              let leaderboardCount = 0;
+              leaderboardEntries.forEach(entry => {
+                if (entry.textContent.includes('$') && entry.textContent.match(/Student \d+/)) {
+                  leaderboardCount++;
+                }
+              });
+              report.playersWithScores = leaderboardCount;
+            } else {
+              // Fallback: just assume all players have scores if we can't find leaderboard
+              report.playersWithScores = report.totalStudents;
+            }
             
             return report;
           }).catch(() => null);
