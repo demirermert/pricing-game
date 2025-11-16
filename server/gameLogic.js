@@ -477,10 +477,9 @@ export function createGameManager(io) {
     console.log(`[Session ${session.code}] Round ${session.currentRound} timer expired - finalizing round`);
     const seenPairs = new Set();
     
-    // Function to generate random price within bounds
+    // Function to generate random price for non-submissions (0-20 range)
     const getRandomPrice = () => {
-      const { min, max } = session.config.priceBounds;
-      return Math.random() * (max - min) + min;
+      return Math.random() * 20; // Random price between 0 and 20
     };
       
     // Process all pairs sequentially to get AI decisions
