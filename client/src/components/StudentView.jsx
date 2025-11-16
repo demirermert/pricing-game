@@ -850,7 +850,7 @@ export function StudentView({
                   Total Profit
                 </div>
                 <div style={{ 
-                  fontSize: '2rem', 
+                  fontSize: '1.5rem', 
                   fontWeight: 700,
                   color: '#10b981'
                 }}>
@@ -948,7 +948,7 @@ export function StudentView({
                   Total Profit
                 </div>
                 <div style={{ 
-                  fontSize: '2rem', 
+                  fontSize: '1.5rem', 
                   fontWeight: 700,
                   color: '#10b981'
                 }}>
