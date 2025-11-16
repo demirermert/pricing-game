@@ -884,6 +884,39 @@ export function InstructorDashboard({
                       onMouseLeave={() => setHoveredPlayerPoint(null)}
                     />
                     
+                    {/* Player B point (green) */}
+                    <circle
+                      cx={x}
+                      cy={yB}
+                      r="8"
+                      fill="#10b981"
+                      stroke="white"
+                      strokeWidth="2"
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={() => setHoveredPlayerPoint(`${pair.pairIndex}-B`)}
+                      onMouseLeave={() => setHoveredPlayerPoint(null)}
+                    />
+                  </g>
+                );
+              })}
+              
+              {/* Tooltips - rendered last so they're always on top */}
+              {individualProfits.map((pair, index) => {
+                const allProfits = individualProfits.flatMap(p => [p.profitA, p.profitB]);
+                const maxProfit = Math.max(...allProfits, 0);
+                const minProfit = Math.min(...allProfits, 0);
+                const profitRange = maxProfit - minProfit || 1;
+                
+                const numPairs = individualProfits.length;
+                const chartWidth = 870;
+                const spacing = chartWidth / (numPairs + 1);
+                const x = 80 + spacing * (index + 1);
+                
+                const yA = 330 - ((pair.profitA - minProfit) / profitRange) * 300;
+                const yB = 330 - ((pair.profitB - minProfit) / profitRange) * 300;
+                
+                return (
+                  <g key={`tooltips-${pair.pairIndex}`}>
                     {/* Tooltip for Player A */}
                     {hoveredPlayerPoint === `${pair.pairIndex}-A` && (
                       <g>
@@ -908,19 +941,6 @@ export function InstructorDashboard({
                         </text>
                       </g>
                     )}
-                    
-                    {/* Player B point (green) */}
-                    <circle
-                      cx={x}
-                      cy={yB}
-                      r="8"
-                      fill="#10b981"
-                      stroke="white"
-                      strokeWidth="2"
-                      style={{ cursor: 'pointer' }}
-                      onMouseEnter={() => setHoveredPlayerPoint(`${pair.pairIndex}-B`)}
-                      onMouseLeave={() => setHoveredPlayerPoint(null)}
-                    />
                     
                     {/* Tooltip for Player B */}
                     {hoveredPlayerPoint === `${pair.pairIndex}-B` && (
