@@ -34,9 +34,17 @@ export function InstructorDashboard({
   const [hoveredPoint, setHoveredPoint] = React.useState(null);
   const [hoveredPlayerPoint, setHoveredPlayerPoint] = React.useState(null);
   const [hoveredPair, setHoveredPair] = React.useState(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
   
   // Filter out instructors from player list - show students and AI players
   const players = (session?.players || []).filter(player => player.role === 'student' || player.role === 'ai');
+  
+  // Filter leaderboard based on search query
+  const filteredLeaderboard = leaderboard && leaderboard.length > 0
+    ? leaderboard.filter(player => 
+        player.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
   
   const handleDownloadData = () => {
     if (!session?.code) return;
@@ -451,6 +459,28 @@ export function InstructorDashboard({
         {/* Right Column - Leaderboard */}
         <div>
           <h3 style={{ margin: '0 0 1rem 0' }}>🏆 Leaderboard</h3>
+          
+          {/* Search Box */}
+          <div style={{ marginBottom: '0.75rem' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+          
           <div style={{
             maxHeight: '400px',
             overflowY: 'auto',
@@ -458,44 +488,52 @@ export function InstructorDashboard({
             borderRadius: '8px',
             backgroundColor: '#f9fafb'
           }}>
-            {leaderboard && leaderboard.length > 0 ? (
+            {filteredLeaderboard.length > 0 ? (
               <div>
-                {leaderboard.map((player, index) => (
-                  <div
-                    key={player.socketId}
-                    style={{
-                      padding: '0.75rem 1rem',
-                      borderBottom: index < leaderboard.length - 1 ? '1px solid #e5e7eb' : 'none',
-                      backgroundColor: index === 0 ? '#fef3c7' : index === 1 ? '#e0e7ff' : index === 2 ? '#fed7aa' : 'white',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                {filteredLeaderboard.map((player, index) => {
+                  // Find the original rank in the full leaderboard
+                  const originalRank = leaderboard.findIndex(p => p.socketId === player.socketId) + 1;
+                  const isTopThree = originalRank <= 3;
+                  
+                  return (
+                    <div
+                      key={player.socketId}
+                      style={{
+                        padding: '0.75rem 1rem',
+                        borderBottom: index < filteredLeaderboard.length - 1 ? '1px solid #e5e7eb' : 'none',
+                        backgroundColor: originalRank === 1 ? '#fef3c7' : originalRank === 2 ? '#e0e7ff' : originalRank === 3 ? '#fed7aa' : 'white',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <span style={{
+                          fontSize: isTopThree ? '1.5rem' : '1rem',
+                          fontWeight: 700,
+                          color: originalRank === 1 ? '#f59e0b' : originalRank === 2 ? '#6366f1' : originalRank === 3 ? '#f97316' : '#6b7280',
+                          minWidth: '2rem'
+                        }}>
+                          {originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : `${originalRank}.`}
+                        </span>
+                        <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{player.name}</span>
+                      </div>
                       <span style={{
-                        fontSize: index < 3 ? '1.5rem' : '1rem',
                         fontWeight: 700,
-                        color: index === 0 ? '#f59e0b' : index === 1 ? '#6366f1' : index === 2 ? '#f97316' : '#6b7280',
-                        minWidth: '2rem'
+                        color: '#10b981',
+                        fontSize: '1rem'
                       }}>
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
+                        ${player.totalProfit.toFixed(2)}
                       </span>
-                      <span style={{ fontWeight: 500, fontSize: '0.9rem' }}>{player.name}</span>
                     </div>
-                    <span style={{
-                      fontWeight: 700,
-                      color: '#10b981',
-                      fontSize: '1rem'
-                    }}>
-                      ${player.totalProfit.toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280', margin: 0 }}>
-                No data yet. Start the game!
+                {searchQuery 
+                  ? `No students found matching "${searchQuery}"`
+                  : 'No data yet. Start the game!'}
               </p>
             )}
           </div>
