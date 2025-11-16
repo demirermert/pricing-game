@@ -236,18 +236,6 @@ export function StudentView({
                     </div>
                   )}
                 </div>
-                
-                <div style={{
-                  marginTop: '1rem',
-                  padding: '0.75rem',
-                  backgroundColor: 'white',
-                  borderRadius: '4px',
-                  fontSize: '0.85rem',
-                  color: '#1e3a8a'
-                }}>
-                  <strong>💡 Strategy Tip:</strong> Higher differentiation (σ) means customers are less likely to switch between products, 
-                  allowing you to charge higher prices. Lower differentiation means price competition will be fierce!
-                </div>
               </div>
             )}
           </div>
