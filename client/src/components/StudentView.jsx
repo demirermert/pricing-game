@@ -1085,7 +1085,7 @@ export function StudentView({
                       <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
                       <line x1="60" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
                       <text x="52" y={y + 5} textAnchor="end" fill="#6b7280" fontSize="22" fontWeight="600">
-                        ${value.toFixed(1)}
+                        ${value.toFixed(0)}
                       </text>
                     </g>
                   );
