@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || import.meta.env.VITE_SOCKET_URL || '').trim();
@@ -31,6 +31,7 @@ export function InstructorDashboard({
   const [showEndConfirm, setShowEndConfirm] = React.useState(false);
   const [hoveredPoint, setHoveredPoint] = React.useState(null);
   const [hoveredPlayerPoint, setHoveredPlayerPoint] = React.useState(null);
+  const [hoveredPair, setHoveredPair] = React.useState(null);
   
   // Filter out instructors from player list - show students and AI players
   const players = (session?.players || []).filter(player => player.role === 'student' || player.role === 'ai');
@@ -106,11 +107,16 @@ export function InstructorDashboard({
               pairId,
               playerA: result.playerA.name,
               playerB: result.playerB.name,
-              totalProfit: 0
+              totalProfit: 0,
+              priceHistoryA: [],
+              priceHistoryB: []
             });
           }
           
-          pairProfits.get(pairId).totalProfit += totalPairProfit;
+          const pairData = pairProfits.get(pairId);
+          pairData.totalProfit += totalPairProfit;
+          pairData.priceHistoryA.push(result.playerA.price);
+          pairData.priceHistoryB.push(result.playerB.price);
         } else if (result.playerName && result.opponentName) {
           // Database format - create a consistent pair key (sorted names)
           const pairKey = [result.playerName, result.opponentName].sort().join('|');
@@ -126,17 +132,22 @@ export function InstructorDashboard({
               pairId: pairKey,
               playerA: result.playerName,
               playerB: result.opponentName,
-              totalProfit: 0
+              totalProfit: 0,
+              priceHistoryA: [],
+              priceHistoryB: []
             });
           }
           
-          // Add both players' profits for this round (we'll find the opponent's profit in the results)
+          // Add both players' profits and prices for this round
           const opponentResult = roundSummary.results.find(r => 
             r.playerName === result.opponentName && r.opponentName === result.playerName
           );
           
           const totalPairProfitThisRound = result.profit + (opponentResult ? opponentResult.profit : 0);
-          pairProfits.get(pairKey).totalProfit += totalPairProfitThisRound;
+          const pairData = pairProfits.get(pairKey);
+          pairData.totalProfit += totalPairProfitThisRound;
+          pairData.priceHistoryA.push(result.price);
+          pairData.priceHistoryB.push(result.opponentPrice);
         }
       });
     });
@@ -662,6 +673,7 @@ export function InstructorDashboard({
                   const rankColors = ['#f59e0b', '#6366f1', '#f97316', '#6b7280'];
                   const backgroundColor = index < 3 ? colors[index] : colors[3];
                   const rankColor = index < 3 ? rankColors[index] : rankColors[3];
+                  const isHovered = hoveredPair === pair.pairId;
                   
                   return (
                     <tr 
@@ -669,15 +681,18 @@ export function InstructorDashboard({
                       style={{ 
                         backgroundColor,
                         cursor: 'pointer',
-                        transition: 'all 0.2s'
+                        transition: 'all 0.2s',
+                        position: 'relative'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = index < 3 ? backgroundColor : '#f9fafb';
                         e.currentTarget.style.transform = 'scale(1.01)';
+                        setHoveredPair(pair.pairId);
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = backgroundColor;
                         e.currentTarget.style.transform = 'scale(1)';
+                        setHoveredPair(null);
                       }}
                     >
                       <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor }}>
@@ -692,8 +707,68 @@ export function InstructorDashboard({
                       <td style={{ fontWeight: 500 }}>
                         👤 {pair.playerB}
                       </td>
-                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981' }}>
+                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981', position: 'relative' }}>
                         ${pair.totalProfit.toFixed(2)}
+                        
+                        {/* Price History Tooltip */}
+                        {isHovered && pair.priceHistoryA && pair.priceHistoryA.length > 0 && (
+                          <div style={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            right: '0',
+                            marginBottom: '0.5rem',
+                            backgroundColor: 'white',
+                            border: '2px solid #3b82f6',
+                            borderRadius: '8px',
+                            padding: '1rem',
+                            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                            zIndex: 1000,
+                            minWidth: '300px',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            <div style={{ fontWeight: 600, marginBottom: '0.5rem', fontSize: '0.9rem', color: '#374151' }}>
+                              💰 Price History
+                            </div>
+                            
+                            {/* Player A Prices */}
+                            <div style={{ marginBottom: '0.5rem' }}>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.25rem' }}>
+                                {pair.playerA}:
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.85rem', color: '#1f2937' }}>
+                                {pair.priceHistoryA.map((price, i) => (
+                                  <span key={i} style={{
+                                    padding: '0.25rem 0.5rem',
+                                    backgroundColor: '#dbeafe',
+                                    borderRadius: '4px',
+                                    fontWeight: 600
+                                  }}>
+                                    R{i+1}: ${price.toFixed(2)}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Player B Prices */}
+                            <div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.25rem' }}>
+                                {pair.playerB}:
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.85rem', color: '#1f2937' }}>
+                                {pair.priceHistoryB.map((price, i) => (
+                                  <span key={i} style={{
+                                    padding: '0.25rem 0.5rem',
+                                    backgroundColor: '#fef3c7',
+                                    borderRadius: '4px',
+                                    fontWeight: 600
+                                  }}>
+                                    R{i+1}: ${price.toFixed(2)}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
