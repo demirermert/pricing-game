@@ -76,6 +76,29 @@ function buildGamePrompt(config, history, opponentHistory) {
   let prompt = '';
   
   if (config.modelType === 'hotelling') {
+    // Calculate monopoly price for Hotelling model
+    const V = config.consumerValue;
+    const t = config.travelCost;
+    const x1 = config.x1;
+    
+    let monopolyPrice;
+    const leftReach = (V/2) / t;
+    const rightReach = (V/2) / t;
+    
+    if (leftReach >= x1 && rightReach >= (100 - x1)) {
+      // Hits both boundaries
+      monopolyPrice = V/2;
+    } else if (leftReach < x1 && rightReach < (100 - x1)) {
+      // Interior solution
+      monopolyPrice = V/2;
+    } else if (leftReach >= x1) {
+      // Hits left boundary
+      monopolyPrice = (V + t * x1) / 2;
+    } else {
+      // Hits right boundary
+      monopolyPrice = (V + t * (100 - x1)) / 2;
+    }
+    
     // Hotelling model prompt
     prompt = `You are playing a competitive pricing game using the Hotelling location model. Here are the rules:
 
@@ -88,17 +111,20 @@ GAME RULES:
 - Price range: $${config.priceBounds.min} to $${config.priceBounds.max}
 - Total rounds: ${config.rounds}
 - Current round: ${currentRound}
+- Monopoly price (if you were alone): $${monopolyPrice.toFixed(2)}
 
 HOW DEMAND WORKS:
 - Consumers buy from whoever offers the lowest total cost (price + travel cost)
+- A consumer only buys if their utility (V - price - travel_cost) is non-negative
 - Your demand = number of consumers closer to you after accounting for price difference
 - If prices are equal, demand splits based on locations
 - Your profit = YourPrice × YourDemand
 
 KEY INSIGHTS:
 - Lower prices attract consumers who are farther from you
-- The indifferent consumer location: x* = 50 + (OpponentPrice - YourPrice)/(2×${config.travelCost})
-- Your demand is all consumers from 0 to x* (capped at 0-100)
+- The indifferent consumer location: x* = (x1 + x2)/2 + (OpponentPrice - YourPrice)/(2×${config.travelCost})
+- But consumers only buy if they get non-negative utility
+- The monopoly price maximizes profit when there's no competition
 
 OBJECTIVE:
 Maximize your total profit across all rounds.

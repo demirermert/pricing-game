@@ -176,6 +176,34 @@ export function StudentView({
                           Position on [0, 100]
                         </div>
                       </div>
+                      <div>
+                        <strong>Reference Price:</strong> ${(() => {
+                          const V = session.config.consumerValue;
+                          const t = session.config.travelCost;
+                          const x1 = session.config.x1;
+                          // Calculate monopoly price for firm at x1
+                          // If interior (not hitting boundaries): V/2
+                          // If hitting boundary: (V + t*distance_to_boundary)/2
+                          const leftReach = (V/2) / t;
+                          const rightReach = (V/2) / t;
+                          if (leftReach >= x1 && rightReach >= (100 - x1)) {
+                            // Hits both boundaries
+                            return (V/2).toFixed(2);
+                          } else if (leftReach < x1 && rightReach < (100 - x1)) {
+                            // Interior solution
+                            return (V/2).toFixed(2);
+                          } else if (leftReach >= x1) {
+                            // Hits left boundary
+                            return ((V + t * x1) / 2).toFixed(2);
+                          } else {
+                            // Hits right boundary
+                            return ((V + t * (100 - x1)) / 2).toFixed(2);
+                          }
+                        })()}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          (Monopoly price)
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <>
