@@ -98,7 +98,7 @@ export function InstructorDashboard({
       roundSummary.results.forEach(result => {
         // Handle both live game format (result.playerA/playerB) and database format (flat result)
         if (result.playerA && result.playerB) {
-          // Live game format
+          // Live game format - use actual pairId
           const pairId = result.pairId;
           const totalPairProfit = result.playerA.profit + result.playerB.profit;
           
@@ -118,18 +118,30 @@ export function InstructorDashboard({
           pairData.priceHistoryA.push(result.playerA.price);
           pairData.priceHistoryB.push(result.playerB.price);
         } else if (result.playerName && result.opponentName) {
-          // Database format - create a consistent pair key (sorted names)
-          const pairKey = [result.playerName, result.opponentName].sort().join('|');
+          // Database format - need to get pairId from session.players
+          // Find the player in the current session to get their pairId
+          let pairId = null;
+          if (session && session.players) {
+            const player = session.players.find(p => p.name === result.playerName);
+            if (player && player.pairId) {
+              pairId = player.pairId;
+            }
+          }
+          
+          // Fallback: create a consistent pair key if no pairId found
+          if (!pairId) {
+            pairId = [result.playerName, result.opponentName].sort().join('|');
+          }
           
           // Only process each pair once per round (since database has both perspectives)
-          if (processedPairs.has(pairKey)) {
+          if (processedPairs.has(pairId)) {
             return; // Skip, we already processed this pair in this round
           }
-          processedPairs.add(pairKey);
+          processedPairs.add(pairId);
           
-          if (!pairProfits.has(pairKey)) {
-            pairProfits.set(pairKey, {
-              pairId: pairKey,
+          if (!pairProfits.has(pairId)) {
+            pairProfits.set(pairId, {
+              pairId,
               playerA: result.playerName,
               playerB: result.opponentName,
               totalProfit: 0,
@@ -144,7 +156,7 @@ export function InstructorDashboard({
           );
           
           const totalPairProfitThisRound = result.profit + (opponentResult ? opponentResult.profit : 0);
-          const pairData = pairProfits.get(pairKey);
+          const pairData = pairProfits.get(pairId);
           pairData.totalProfit += totalPairProfitThisRound;
           pairData.priceHistoryA.push(result.price);
           pairData.priceHistoryB.push(result.opponentPrice);
