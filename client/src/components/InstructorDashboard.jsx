@@ -448,9 +448,9 @@ export function InstructorDashboard({
           </div>
         </div>
 
-        {/* Right Column - Top 10 Leaderboard */}
+        {/* Right Column - Leaderboard */}
         <div>
-          <h3 style={{ margin: '0 0 1rem 0' }}>🏆 Top 10 Leaderboard</h3>
+          <h3 style={{ margin: '0 0 1rem 0' }}>🏆 Leaderboard</h3>
           <div style={{
             maxHeight: '400px',
             overflowY: 'auto',
@@ -460,12 +460,12 @@ export function InstructorDashboard({
           }}>
             {leaderboard && leaderboard.length > 0 ? (
               <div>
-                {leaderboard.slice(0, 10).map((player, index) => (
+                {leaderboard.map((player, index) => (
                   <div
                     key={player.socketId}
                     style={{
                       padding: '0.75rem 1rem',
-                      borderBottom: index < 9 ? '1px solid #e5e7eb' : 'none',
+                      borderBottom: index < leaderboard.length - 1 ? '1px solid #e5e7eb' : 'none',
                       backgroundColor: index === 0 ? '#fef3c7' : index === 1 ? '#e0e7ff' : index === 2 ? '#fed7aa' : 'white',
                       display: 'flex',
                       justifyContent: 'space-between',
