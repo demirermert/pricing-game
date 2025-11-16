@@ -641,7 +641,7 @@ export function StudentView({
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                OPPONENT
+                {latestResult?.opponentName || 'OPPONENT'}
               </div>
               
               <div style={{ marginBottom: '1rem' }}>
@@ -735,14 +735,15 @@ export function StudentView({
                      history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0) ? '3px solid #8b5cf6' : '2px solid #e5e7eb',
               borderRadius: '12px',
               padding: '1.5rem',
+              paddingTop: '2.5rem',
               position: 'relative'
             }}>
               {history.reduce((sum, item) => sum + (item.profit || 0), 0) >= 
                history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0) && (
                 <div style={{
                   position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
+                  top: '0.75rem',
+                  right: '0.75rem',
                   backgroundColor: '#8b5cf6',
                   color: 'white',
                   padding: '0.25rem 0.75rem',
@@ -830,14 +831,15 @@ export function StudentView({
                      history.reduce((sum, item) => sum + (item.profit || 0), 0) ? '3px solid #8b5cf6' : '2px solid #e5e7eb',
               borderRadius: '12px',
               padding: '1.5rem',
+              paddingTop: '2.5rem',
               position: 'relative'
             }}>
               {history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0) > 
                history.reduce((sum, item) => sum + (item.profit || 0), 0) && (
                 <div style={{
                   position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
+                  top: '0.75rem',
+                  right: '0.75rem',
                   backgroundColor: '#8b5cf6',
                   color: 'white',
                   padding: '0.25rem 0.75rem',
@@ -858,7 +860,9 @@ export function StudentView({
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                OPPONENT
+                {history && history.length > 0 && history[0]?.opponentName 
+                  ? history[0].opponentName.toUpperCase() 
+                  : 'OPPONENT'}
               </div>
               
               <div style={{ marginBottom: '1rem' }}>
