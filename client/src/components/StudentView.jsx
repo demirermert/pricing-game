@@ -1222,9 +1222,6 @@ export function StudentView({
               </g>
               
               {/* Axis labels */}
-              <text x="25" y="200" textAnchor="middle" fill="#6b7280" className="chart-axis-title" transform="rotate(-90, 25, 200)">
-                Price ($)
-              </text>
               <text x="420" y="380" textAnchor="middle" fill="#6b7280" className="chart-axis-title">
                 Round
               </text>
