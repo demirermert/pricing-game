@@ -221,7 +221,8 @@ export function InstructorDashboard({
       
       if (playerAProfit && playerBProfit) {
         individualByPair.push({
-          pairIndex: index + 1,
+          pairId: pair.pairId,
+          pairIndex: pair.pairId.toString().replace('pair-', ''),
           playerA: pair.playerA,
           playerB: pair.playerB,
           profitA: playerAProfit.profit,
