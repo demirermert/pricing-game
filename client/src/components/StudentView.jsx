@@ -685,7 +685,9 @@ export function StudentView({
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                {latestResult?.opponentName || 'OPPONENT'}
+                {session?.config?.showOpponentName && latestResult?.opponentName 
+                  ? latestResult.opponentName 
+                  : 'OPPONENT'}
               </div>
               
               <div style={{ marginBottom: '1rem' }}>
