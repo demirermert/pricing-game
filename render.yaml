@@ -3,8 +3,8 @@ services:
     name: pricing-game-server
     env: node
     plan: free
-    buildCommand: cd pricing-game/server && npm install
-    startCommand: cd pricing-game/server && npm start
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
     envVars:
       - key: NODE_VERSION
         value: 20
