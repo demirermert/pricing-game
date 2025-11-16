@@ -73,8 +73,8 @@ export async function getAIPriceDecision(config, history = [], opponentHistory =
 function buildGamePrompt(config, history, opponentHistory) {
   const currentRound = history.length + 1;
   
-  // Calculate monopoly price (1/alpha)
-  const monopolyPrice = 1 / config.alpha;
+  // Calculate monopoly price (delta/alpha where delta = 10)
+  const monopolyPrice = 10 / config.alpha;
   
   let prompt = `You are playing a competitive pricing game. Here are the rules:
 

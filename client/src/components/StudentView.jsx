@@ -154,7 +154,7 @@ export function StudentView({
                     <strong>Market Size:</strong> {session.config.marketSize} customers
                   </div>
                   <div>
-                    <strong>Reference Price:</strong> ${(1 / session.config.alpha).toFixed(2)}
+                    <strong>Reference Price:</strong> ${(10 / session.config.alpha).toFixed(2)}
                     <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
                       (Monopoly price)
                     </div>
