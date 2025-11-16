@@ -640,9 +640,6 @@ export function InstructorDashboard({
                 Price
               </text>
             </svg>
-            <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem', marginTop: '1rem', marginBottom: 0 }}>
-              Blue line shows average price, gray bars show standard deviation (±1 SD)
-            </p>
           </div>
         </div>
       )}
