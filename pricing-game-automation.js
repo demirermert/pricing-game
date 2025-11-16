@@ -10,6 +10,7 @@ let NUM_STUDENTS = 6; // Default number of students (must be even for pairing)
 let AUTO_SUBMIT = false;
 let USE_ONLINE = false;
 let NUM_ROUNDS = null; // Default: null means use game's default settings
+let MANUAL_START = false; // Wait for manual game start
 
 // Check for flags
 for (let i = 2; i < process.argv.length; i++) {
@@ -31,6 +32,8 @@ for (let i = 2; i < process.argv.length; i++) {
       NUM_ROUNDS = parseInt(process.argv[i + 1], 10);
       i++; // Skip the next argument since we used it
     }
+  } else if (arg === '-m' || arg === '--manual') {
+    MANUAL_START = true;
   }
 }
 
@@ -40,7 +43,7 @@ if (NUM_STUDENTS % 2 !== 0) {
   console.log(`⚠️  Adjusted to ${NUM_STUDENTS} students (must be even for pairing)`);
 }
 
-console.log(`Configuration: ${NUM_STUDENTS} students, Auto-submit: ${AUTO_SUBMIT}, Online: ${USE_ONLINE}${NUM_ROUNDS ? `, Rounds: ${NUM_ROUNDS}` : ''}`);
+console.log(`Configuration: ${NUM_STUDENTS} students, Auto-submit: ${AUTO_SUBMIT}, Online: ${USE_ONLINE}${NUM_ROUNDS ? `, Rounds: ${NUM_ROUNDS}` : ''}${MANUAL_START ? ', Manual start: true' : ''}`);
 
 async function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -52,6 +55,177 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Reason:', reason);
   process.exit(1);
 });
+
+async function setupInstructorManual(browser) {
+  let instructorPage;
+  try {
+    console.log('🎓 Opening instructor page for manual setup...');
+    
+    instructorPage = await browser.newPage();
+    
+    // Set up error handlers for the page
+    instructorPage.on('pageerror', error => {
+      console.log('⚠️  Page error:', error.message);
+    });
+    
+    instructorPage.on('error', error => {
+      console.log('⚠️  Page crashed:', error.message);
+    });
+    
+    console.log(`🔗 Navigating to ${INSTRUCTOR_URL}...`);
+    const timeout = USE_ONLINE ? 30000 : 10000;
+    await instructorPage.goto(INSTRUCTOR_URL, { 
+      waitUntil: 'domcontentloaded',
+      timeout 
+    }).catch(err => {
+      throw new Error(`Failed to navigate to instructor page: ${err.message}`);
+    });
+    
+    // Wait for React to render
+    await delay(USE_ONLINE ? 3000 : 1500);
+    
+    console.log('📝 Looking for "New Game" button...');
+    
+    // Try to wait for buttons to appear
+    try {
+      await instructorPage.waitForSelector('button', { timeout: 5000 });
+    } catch (e) {
+      console.log('⚠️  Timeout waiting for buttons, trying anyway...');
+    }
+    
+    // Get all buttons and find the New Game button
+    const buttons = await instructorPage.$$('button').catch(() => []);
+    
+    if (buttons.length === 0) {
+      await instructorPage.screenshot({ path: 'instructor-no-buttons.png' });
+      throw new Error('No buttons found on instructor page');
+    }
+    
+    console.log(`Found ${buttons.length} button(s) on page`);
+    
+    let clicked = false;
+    for (const button of buttons) {
+      const text = await button.evaluate(el => el.textContent.trim()).catch(() => '');
+      console.log(`  Button text: "${text}"`);
+      if (text.toLowerCase().includes('new') && text.toLowerCase().includes('game')) {
+        console.log('🖱️  Clicking New Game button...');
+        await button.click();
+        clicked = true;
+        break;
+      }
+    }
+    
+    if (!clicked) {
+      console.log('❌ Could not find New Game button');
+      await instructorPage.screenshot({ path: 'instructor-screenshot.png' });
+      throw new Error('New Game button not found');
+    }
+    
+    console.log('✅ Clicked New Game button');
+    
+    // Wait for form to expand
+    await delay(1000);
+    
+    // If NUM_ROUNDS is specified, set the rounds input
+    if (NUM_ROUNDS !== null) {
+      console.log(`🔢 Setting number of rounds to ${NUM_ROUNDS}...`);
+      try {
+        const roundsInput = await instructorPage.$('input[type="number"]').catch(() => null);
+        if (roundsInput) {
+          // Clear existing value and set new value
+          await roundsInput.click({ clickCount: 3 }); // Select all
+          await roundsInput.type(String(NUM_ROUNDS));
+          console.log(`✅ Set rounds to ${NUM_ROUNDS}`);
+        } else {
+          console.log('⚠️  Could not find rounds input field');
+        }
+      } catch (e) {
+        console.log('⚠️  Error setting rounds:', e.message);
+      }
+      await delay(500);
+    }
+    
+    console.log('\n' + '='.repeat(60));
+    console.log('📋 MANUAL MODE: Configure and create your game');
+    console.log('='.repeat(60));
+    console.log('👉 Configure game settings in the browser:');
+    console.log('   - Time per round, break time, market parameters, etc.');
+    if (NUM_ROUNDS !== null) {
+      console.log(`   - Rounds already set to ${NUM_ROUNDS}`);
+    }
+    console.log('👉 Click "Create Session"');
+    console.log('👉 Waiting for session code to appear...');
+    console.log('='.repeat(60) + '\n');
+    
+    // Wait for session code to appear on the page
+    console.log('⏳ Waiting for you to create the session...');
+    let sessionCode = null;
+    let attempts = 0;
+    const maxAttempts = 120; // Wait up to 2 minutes
+    
+    while (!sessionCode && attempts < maxAttempts) {
+      await delay(1000);
+      attempts++;
+      
+      sessionCode = await instructorPage.evaluate(() => {
+        // Look for session code in the URL (after creating session, it redirects to /manage/:code)
+        const urlMatch = window.location.pathname.match(/\/manage\/([A-Z0-9]{4})/);
+        if (urlMatch) {
+          return urlMatch[1];
+        }
+        
+        // Look for the session code display in strong tags
+        const allStrong = Array.from(document.querySelectorAll('strong'));
+        for (const strong of allStrong) {
+          const text = strong.textContent.trim();
+          // Session codes are exactly 4 alphanumeric characters
+          if (/^[A-Z0-9]{4}$/.test(text)) {
+            // Make sure it's actually displayed on page (not hidden)
+            const rect = strong.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              return text;
+            }
+          }
+        }
+        
+        return null;
+      }).catch(() => null);
+      
+      if (sessionCode) {
+        // Double check it's valid by waiting a bit and checking again
+        await delay(500);
+        const confirmed = await instructorPage.evaluate((code) => {
+          const urlMatch = window.location.pathname.match(/\/manage\/([A-Z0-9]{4})/);
+          return urlMatch && urlMatch[1] === code;
+        }, sessionCode).catch(() => false);
+        
+        if (confirmed) {
+          break;
+        } else {
+          sessionCode = null; // False positive, keep waiting
+        }
+      }
+    }
+    
+    if (!sessionCode) {
+      console.log('❌ Could not detect session code automatically');
+      await instructorPage.screenshot({ path: 'instructor-screenshot.png' });
+      console.log('📸 Screenshot saved to instructor-screenshot.png');
+      throw new Error('Session code not found after waiting');
+    }
+    
+    console.log(`✅ Session Code: ${sessionCode}`);
+    console.log('📌 Keeping instructor page open for monitoring\n');
+    
+    return { instructorPage, sessionCode };
+  } catch (error) {
+    console.error('❌ Error in setupInstructorManual:', error.message);
+    if (instructorPage) {
+      await instructorPage.screenshot({ path: 'instructor-error.png' }).catch(() => {});
+    }
+    throw error;
+  }
+}
 
 async function setupInstructor(browser) {
   let instructorPage;
@@ -514,7 +688,9 @@ async function main() {
     });
     
     // Setup instructor and get session code
-    const { instructorPage, sessionCode } = await setupInstructor(browser);
+    const { instructorPage, sessionCode } = MANUAL_START 
+      ? await setupInstructorManual(browser)
+      : await setupInstructor(browser);
     
     console.log('\n' + '='.repeat(50));
     console.log(`📋 SESSION CODE: ${sessionCode}`);
@@ -559,7 +735,7 @@ async function main() {
     // Wait for the instructor dashboard to update with all players
     await delay(1500);
     
-    // Click "Start Game" button on instructor page
+    // Click "Start Game" button on instructor page (always do this, even in manual mode)
     console.log('\n🎮 Starting the game...');
     try {
       // Bring instructor page to front
@@ -640,8 +816,8 @@ async function main() {
       console.log('🤖 Auto-submit is ENABLED - students will submit automatically');
     } else {
       console.log('💡 Tip: Use -a or --auto flag to enable auto-submit for students');
-      console.log('💡 Example: npm run test-game -- -a 6 (opens 6 students with auto-submit)');
-      console.log('💡 Flags: -r [number] to set rounds, -o for online mode');
+      console.log('💡 Example: npm run test-game -- -m -a 6 (manual config, 6 students with auto-submit)');
+      console.log('💡 Flags: -m for manual config, -r [number] to set rounds, -o for online mode');
     }
     console.log('🖥️  Browser windows will remain open for testing');
     console.log('⏹️  Press Ctrl+C to close all windows and exit\n');
