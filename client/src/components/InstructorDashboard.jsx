@@ -563,7 +563,7 @@ export function InstructorDashboard({
                         color: '#10b981',
                         fontSize: '1rem'
                       }}>
-                        ${player.totalProfit.toFixed(2)}
+                        ${player.totalProfit.toFixed(0)}
                       </span>
                     </div>
                   );
@@ -887,7 +887,7 @@ export function InstructorDashboard({
                         👤 {pair.playerB}
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981', padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
-                        ${pair.totalProfit.toFixed(2)}
+                        ${pair.totalProfit.toFixed(0)}
                       </td>
                     </tr>
                   );
