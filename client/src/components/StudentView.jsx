@@ -1082,7 +1082,7 @@ export function StudentView({
                     <g key={`ylabel-${i}`}>
                       <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
                       <line x1="60" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
-                      <text x="52" y={y + 4} textAnchor="end" fill="#6b7280" fontSize="11" fontWeight="500">
+                      <text x="52" y={y + 4} textAnchor="end" fill="#6b7280" fontSize="16" fontWeight="500">
                         ${value.toFixed(1)}
                       </text>
                     </g>
@@ -1101,7 +1101,7 @@ export function StudentView({
                 return (
                   <g key={`xlabel-${item.round}`}>
                     <line x1={x} y1="250" x2={x} y2="255" stroke="#9ca3af" strokeWidth="1" />
-                    <text x={x} y="268" textAnchor="middle" fill="#6b7280" fontSize="11" fontWeight="500">
+                    <text x={x} y="268" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="500">
                       R{item.round}
                     </text>
                   </g>
@@ -1213,17 +1213,17 @@ export function StudentView({
               {/* Legend */}
               <g transform="translate(620, 20)">
                 <circle cx="10" cy="0" r="5" fill="#3b82f6" stroke="white" strokeWidth="2" />
-                <text x="20" y="4" fill="#374151" fontSize="11" fontWeight="500">Your Price</text>
+                <text x="20" y="4" fill="#374151" fontSize="16" fontWeight="500">Your Price</text>
                 
                 <circle cx="10" cy="20" r="5" fill="#f59e0b" stroke="white" strokeWidth="2" />
-                <text x="20" y="24" fill="#374151" fontSize="11" fontWeight="500">Opponent Price</text>
+                <text x="20" y="24" fill="#374151" fontSize="16" fontWeight="500">Opponent Price</text>
               </g>
               
               {/* Axis labels */}
-              <text x="20" y="140" textAnchor="middle" fill="#6b7280" fontSize="12" fontWeight="600" transform="rotate(-90, 20, 140)">
+              <text x="20" y="140" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600" transform="rotate(-90, 20, 140)">
                 Price ($)
               </text>
-              <text x="410" y="290" textAnchor="middle" fill="#6b7280" fontSize="12" fontWeight="600">
+              <text x="410" y="290" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600">
                 Round
               </text>
             </svg>
