@@ -896,7 +896,7 @@ export function StudentView({
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
               }}>
-                {session?.config?.showOpponentName && history && history.length > 0 && history[0]?.opponentName 
+                {history && history.length > 0 && history[0]?.opponentName 
                   ? history[0].opponentName.toUpperCase() 
                   : 'OPPONENT'}
               </div>
