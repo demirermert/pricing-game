@@ -161,11 +161,6 @@ export function createGameManager(io) {
       throw new Error('Name is required');
     }
     
-    // Block students from joining if session is in setup mode
-    if (role === 'student' && session.status === STATUS.SETUP) {
-      throw new Error('This session is not open yet. Please wait for the instructor to open the lobby.');
-    }
-    
     // Check if this student is rejoining with their unique code
     if (studentCode && role === 'student') {
       // Look for existing player with this unique code
@@ -250,9 +245,13 @@ export function createGameManager(io) {
       const code = sessionCode?.trim().toUpperCase();
       const session = ensureSession(code);
       
-      // Check if trying to join as a new student after game started
-      if (role === 'student' && !studentCode && session.status !== STATUS.LOBBY) {
-        throw new Error('Game has already started. New students cannot join.');
+      // Check if trying to join as a new student when session is not in lobby
+      if (role === 'student' && !studentCode) {
+        if (session.status === STATUS.SETUP) {
+          throw new Error('This session is not open yet. Please wait for the instructor to open the lobby.');
+        } else if (session.status !== STATUS.LOBBY) {
+          throw new Error('Game has already started. New students cannot join.');
+        }
       }
       
       // Check if trying to rejoin with a code but not in this session
@@ -260,8 +259,12 @@ export function createGameManager(io) {
         const existingPlayer = Array.from(session.players.values()).find(
           p => p.studentCode === studentCode
         );
-        if (!existingPlayer && session.status !== STATUS.LOBBY) {
-          throw new Error('Game has already started. You were not part of this game.');
+        if (!existingPlayer) {
+          if (session.status === STATUS.SETUP) {
+            throw new Error('This session is not open yet. Please wait for the instructor to open the lobby.');
+          } else if (session.status !== STATUS.LOBBY) {
+            throw new Error('Game has already started. You were not part of this game.');
+          }
         }
       }
       
