@@ -938,13 +938,13 @@ export function StudentView({
             }}>
               <thead>
                 <tr>
-                  <th style={{ width: '8%', padding: '0.5rem 0.25rem' }}>Rnd</th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>You $</th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>Opp $</th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>You %</th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>Opp %</th>
-                  <th style={{ width: '20%', padding: '0.5rem 0.25rem' }}>Your Profit</th>
-                  <th style={{ width: '20%', padding: '0.5rem 0.25rem' }}>Opp Profit</th>
+                  <th style={{ width: '8%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>Rnd</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>You $</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>Opp $</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>You %</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>Opp %</th>
+                  <th style={{ width: '20%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>Your Profit</th>
+                  <th style={{ width: '20%', padding: '0.5rem 0.25rem', fontSize: '0.75rem' }}>Opp Profit</th>
                 </tr>
               </thead>
               <tbody>
@@ -957,8 +957,8 @@ export function StudentView({
               return (
                   <tr key={item.round}>
                     <td style={{ padding: '0.5rem 0.25rem' }}>{item.round}</td>
-                    <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem' }}>${item.price.toFixed(1)}</td>
-                    <td style={{ padding: '0.5rem 0.25rem' }}>${item.opponentPrice?.toFixed(1) || '-'}</td>
+                    <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem' }}>{item.price.toFixed(1)}</td>
+                    <td style={{ padding: '0.5rem 0.25rem' }}>{item.opponentPrice?.toFixed(1) || '-'}</td>
                     <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem' }}>{yourShareStr}%</td>
                     <td style={{ padding: '0.5rem 0.25rem' }}>{item.opponentShare ? oppShareStr + '%' : '-'}</td>
                     <td style={{ fontWeight: 600, color: '#10b981', padding: '0.5rem 0.25rem' }}>${item.profit.toFixed(0)}</td>
