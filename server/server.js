@@ -117,6 +117,10 @@ io.on('connection', socket => {
     manager.handleJoin(socket, payload);
   });
 
+  socket.on('openLobby', ({ sessionCode }) => {
+    manager.handleOpenLobby(socket, sessionCode);
+  });
+
   socket.on('startSession', ({ sessionCode }) => {
     manager.handleStartSession(socket, sessionCode);
   });

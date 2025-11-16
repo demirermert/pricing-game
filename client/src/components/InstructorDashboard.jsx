@@ -15,8 +15,10 @@ export function InstructorDashboard({
   instructorName,
   session,
   canStart,
+  canOpenLobby,
   startDisabledReason,
   onStart,
+  onOpenLobby,
   onEndSession,
   leaderboard,
   latestRound,
@@ -290,7 +292,11 @@ export function InstructorDashboard({
                 End Session
               </button>
             )}
-            {canStart ? (
+            {canOpenLobby ? (
+              <button className="primary" onClick={onOpenLobby} style={{ whiteSpace: 'nowrap', backgroundColor: '#10b981' }}>
+                🚪 Open Lobby
+              </button>
+            ) : canStart ? (
               <button className="primary" onClick={onStart} style={{ whiteSpace: 'nowrap' }}>
                 🎮 Start Game
               </button>

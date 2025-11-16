@@ -504,6 +504,12 @@ export default function SessionPage() {
     socket.emit('startSession', { sessionCode });
   };
 
+  const handleOpenLobby = () => {
+    if (!sessionCode) return;
+    setErrorMessage('');
+    socket.emit('openLobby', { sessionCode });
+  };
+
   const handleEndSession = () => {
     if (!sessionCode) return;
     setErrorMessage('');
@@ -677,6 +683,7 @@ export default function SessionPage() {
   if (userRole === 'instructor') {
     const studentCount = session?.players?.filter(player => player.role === 'student').length || 0;
     const canStart = session?.status === 'lobby' && studentCount >= 1;
+    const canOpenLobby = session?.status === 'setup';
     let startDisabledReason = '';
     if (session?.status === 'lobby' && studentCount < 1) {
       startDisabledReason = 'Need at least one student to start';
@@ -704,8 +711,10 @@ export default function SessionPage() {
           instructorName={userName || session?.instructorName}
           session={session}
           canStart={canStart && !isCompletedSession}
+          canOpenLobby={canOpenLobby && !isCompletedSession}
           startDisabledReason={startDisabledReason}
           onStart={handleStartSession}
+          onOpenLobby={handleOpenLobby}
           onEndSession={handleEndSession}
           leaderboard={leaderboard}
           latestRound={latestRoundSummary}

@@ -15,7 +15,8 @@ const DEFAULT_CONFIG = {
 
 const SESSION_CODE_LENGTH = 4;
 const STATUS = {
-  LOBBY: 'lobby',
+  SETUP: 'setup',      // Session created, parameters set, but not open to students yet
+  LOBBY: 'lobby',      // Open to students, waiting to start
   RUNNING: 'running',
   COMPLETE: 'complete'
 };
@@ -61,7 +62,7 @@ export function createGameManager(io) {
       config,
       instructorSocket: null,
       instructorName,
-      status: STATUS.LOBBY,
+      status: STATUS.SETUP,  // Start in setup mode, not lobby
       currentRound: 0,
       players: new Map(),
       pairs: [],
@@ -84,7 +85,7 @@ export function createGameManager(io) {
         instructorName,
         sessionName: session.sessionName,
         config,
-        status: STATUS.LOBBY
+        status: STATUS.SETUP  // Save as setup in database too
       });
       session.dbId = dbId;
     } catch (err) {
@@ -158,6 +159,11 @@ export function createGameManager(io) {
   function registerPlayer(session, socket, { playerName, role, studentCode }) {
     if (!playerName) {
       throw new Error('Name is required');
+    }
+    
+    // Block students from joining if session is in setup mode
+    if (role === 'student' && session.status === STATUS.SETUP) {
+      throw new Error('This session is not open yet. Please wait for the instructor to open the lobby.');
     }
     
     // Check if this student is rejoining with their unique code
@@ -326,6 +332,33 @@ export function createGameManager(io) {
       socket.emit('joinedSession', joinResponse);
       broadcastSession(session);
       console.log(`${playerName} joined session ${code}${finalStudentCode ? ` (${finalStudentCode})` : ''}`);
+    } catch (err) {
+      socket.emit('errorMessage', err.message);
+    }
+  }
+
+  function handleOpenLobby(socket, sessionCode) {
+    try {
+      const session = ensureSession(sessionCode);
+      ensureInstructor(socket, session);
+      
+      if (session.status !== STATUS.SETUP) {
+        throw new Error('Can only open lobby from setup mode');
+      }
+      
+      session.status = STATUS.LOBBY;
+      
+      // Update status in database
+      if (session.dbId) {
+        try {
+          db.updateSessionStatus(session.code, STATUS.LOBBY);
+        } catch (err) {
+          console.error('Failed to update session status:', err);
+        }
+      }
+      
+      broadcastSession(session);
+      console.log(`Lobby opened for session ${sessionCode}`);
     } catch (err) {
       socket.emit('errorMessage', err.message);
     }
@@ -894,6 +927,7 @@ export function createGameManager(io) {
   return {
     createSession,
     handleJoin,
+    handleOpenLobby,
     handleStartSession,
     handlePriceSubmission,
     handleChatMessage,

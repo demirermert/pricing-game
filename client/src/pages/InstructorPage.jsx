@@ -222,6 +222,8 @@ export default function InstructorPage() {
         return '#3b82f6';
       case 'lobby':
         return '#f59e0b';
+      case 'setup':
+        return '#8b5cf6';  // Purple for setup
       default:
         return '#6b7280';
     }
