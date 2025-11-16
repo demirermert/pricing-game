@@ -366,6 +366,59 @@ export default function SessionPage() {
     return () => clearInterval(fallbackTimer);
   }, [roundActive, hasSubmitted]);
 
+  // Handle page visibility changes (mobile app switching)
+  useEffect(() => {
+    let wasHidden = false;
+    
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page became hidden (user switched apps)
+        wasHidden = true;
+        console.log('Page hidden - user switched apps');
+      } else if (wasHidden) {
+        // Page became visible again after being hidden
+        console.log('Page visible again - checking connection...');
+        
+        // Check if socket is disconnected
+        if (!socket.connected) {
+          console.log('Socket disconnected - reconnecting...');
+          socket.connect();
+        }
+        
+        // If we have joinInfo (were in a session), force a rejoin to refresh state
+        if (joinInfo && sessionCode) {
+          console.log('Refreshing session state...');
+          
+          // Wait a moment for socket to reconnect, then rejoin
+          setTimeout(() => {
+            if (joinInfo.role === 'student' && studentCodeFromUrl) {
+              socket.emit('joinSession', {
+                sessionCode,
+                playerName: joinInfo.playerName,
+                studentCode: studentCodeFromUrl,
+                role: 'student'
+              });
+            } else if (joinInfo.role === 'instructor') {
+              socket.emit('joinSession', {
+                sessionCode,
+                playerName: joinInfo.playerName,
+                role: 'instructor'
+              });
+            }
+          }, 500); // Give socket 500ms to reconnect
+        }
+        
+        wasHidden = false;
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [joinInfo, sessionCode, studentCodeFromUrl]);
+
   // Auto-join if coming from instructor or student page, or if student code in URL
   useEffect(() => {
     if (hasAttemptedJoin || joinInfo) return;
