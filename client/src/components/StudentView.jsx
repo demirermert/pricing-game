@@ -1057,14 +1057,14 @@ export function StudentView({
             borderRadius: '8px',
             backgroundColor: 'white'
           }}>
-            <svg width="100%" height="300" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+            <svg width="100%" height="400" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" style={{ minHeight: '400px' }}>
               {/* Chart background */}
-              <rect x="0" y="0" width="800" height="300" fill="white" />
+              <rect x="0" y="0" width="800" height="400" fill="white" />
               
               {/* Y-axis */}
-              <line x1="60" y1="20" x2="60" y2="250" stroke="#d1d5db" strokeWidth="2" />
+              <line x1="60" y1="30" x2="60" y2="350" stroke="#d1d5db" strokeWidth="2" />
               {/* X-axis */}
-              <line x1="60" y1="250" x2="760" y2="250" stroke="#d1d5db" strokeWidth="2" />
+              <line x1="60" y1="350" x2="760" y2="350" stroke="#d1d5db" strokeWidth="2" />
               
               {/* Y-axis labels (Price) */}
               {(() => {
@@ -1077,7 +1077,7 @@ export function StudentView({
                 
                 for (let i = 0; i <= numLabels; i++) {
                   const value = minPrice + (priceRange * i / numLabels);
-                  const y = 250 - (i / numLabels) * 230;
+                  const y = 350 - (i / numLabels) * 320;
                   yLabels.push(
                     <g key={`ylabel-${i}`}>
                       <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
@@ -1100,8 +1100,8 @@ export function StudentView({
                 
                 return (
                   <g key={`xlabel-${item.round}`}>
-                    <line x1={x} y1="250" x2={x} y2="255" stroke="#9ca3af" strokeWidth="1" />
-                    <text x={x} y="268" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="500">
+                    <line x1={x} y1="350" x2={x} y2="355" stroke="#9ca3af" strokeWidth="1" />
+                    <text x={x} y="373" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="500">
                       R{item.round}
                     </text>
                   </g>
@@ -1121,7 +1121,7 @@ export function StudentView({
                     const chartWidth = 700;
                     const spacing = chartWidth / (numRounds - 1);
                     const x = 60 + spacing * index;
-                    const y = 250 - ((item.price - minPrice) / priceRange) * 230;
+                    const y = 350 - ((item.price - minPrice) / priceRange) * 320;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1146,7 +1146,7 @@ export function StudentView({
                     const chartWidth = 700;
                     const spacing = chartWidth / (numRounds - 1);
                     const x = 60 + spacing * index;
-                    const y = 250 - ((item.opponentPrice - minPrice) / priceRange) * 230;
+                    const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 320;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1169,7 +1169,7 @@ export function StudentView({
                 const chartWidth = 700;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
                 const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 250 - ((item.price - minPrice) / priceRange) * 230;
+                const y = 350 - ((item.price - minPrice) / priceRange) * 320;
                 
                 return (
                   <circle
@@ -1195,7 +1195,7 @@ export function StudentView({
                 const chartWidth = 700;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
                 const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 250 - ((item.opponentPrice - minPrice) / priceRange) * 230;
+                const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 320;
                 
                 return (
                   <circle
@@ -1220,10 +1220,10 @@ export function StudentView({
               </g>
               
               {/* Axis labels */}
-              <text x="20" y="140" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600" transform="rotate(-90, 20, 140)">
+              <text x="20" y="190" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600" transform="rotate(-90, 20, 190)">
                 Price ($)
               </text>
-              <text x="410" y="290" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600">
+              <text x="410" y="390" textAnchor="middle" fill="#6b7280" fontSize="16" fontWeight="600">
                 Round
               </text>
             </svg>
