@@ -939,27 +939,27 @@ export function StudentView({
               <thead>
                 <tr>
                   <th style={{ width: '8%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>R</th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '15%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>You</div>
                     <div>$</div>
                   </th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '15%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>Opp</div>
                     <div>$</div>
                   </th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '12%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>You</div>
                     <div>%</div>
                   </th>
-                  <th style={{ width: '13%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '12%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>Opp</div>
                     <div>%</div>
                   </th>
-                  <th style={{ width: '20%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '19%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>Your</div>
                     <div>Profit</div>
                   </th>
-                  <th style={{ width: '20%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
+                  <th style={{ width: '19%', padding: '0.5rem 0.25rem', fontSize: '0.75rem', textAlign: 'center' }}>
                     <div>Opp</div>
                     <div>Profit</div>
                   </th>
@@ -991,10 +991,10 @@ export function StudentView({
                   fontWeight: 700
                 }}>
                   <td style={{ fontWeight: 700, padding: '0.5rem 0.25rem', textAlign: 'center' }}>Total</td>
-                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>-</td>
-                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>-</td>
-                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>-</td>
-                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>-</td>
+                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}></td>
+                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}></td>
+                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}></td>
+                  <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}></td>
                   <td style={{ fontWeight: 700, color: '#10b981', fontSize: '1rem', padding: '0.5rem 0.25rem', textAlign: 'center' }}>
                     ${history.reduce((sum, item) => sum + (item.profit || 0), 0).toFixed(0)}
                   </td>
