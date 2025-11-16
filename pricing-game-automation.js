@@ -582,7 +582,7 @@ async function main() {
               const bounds = boundsMatch ? {
                 min: parseInt(boundsMatch[1]),
                 max: parseInt(boundsMatch[2])
-              } : { min: 0, max: 100 };
+              } : { min: 0, max: 20 };
               
               return { rounds, bounds };
             }).catch(() => ({ rounds: 2, bounds: { min: 0, max: 20 } }));
