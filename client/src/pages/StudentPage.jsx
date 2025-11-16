@@ -35,6 +35,15 @@ export default function StudentPage() {
       return;
     }
     
+    // Solution #2: Clear ALL old student session data when manually joining
+    // This ensures no stale data from previous sessions
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('student_')) {
+        localStorage.removeItem(key);
+      }
+    });
+    console.log('Cleared all previous student session data');
+    
     // If names are not provided, generate a random name
     let fullName;
     if (!firstName.trim() || !lastName.trim()) {

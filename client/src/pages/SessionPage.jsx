@@ -124,7 +124,11 @@ export default function SessionPage() {
       // Store student name in localStorage for auto-rejoin on refresh
       if (payload.role === 'student' && payload.studentCode && payload.playerName) {
         const storageKey = `student_${sessionCode}_${payload.studentCode}`;
-        localStorage.setItem(storageKey, payload.playerName);
+        const storageData = {
+          name: payload.playerName,
+          timestamp: Date.now() // Store when they joined
+        };
+        localStorage.setItem(storageKey, JSON.stringify(storageData));
       }
       
       // Store instructor name in localStorage for auto-rejoin on refresh
@@ -204,6 +208,13 @@ export default function SessionPage() {
     const handleSessionComplete = payload => {
       setRoundActive(false);
       setLatestRoundSummary(payload.rounds[payload.rounds.length - 1] || null);
+      
+      // Solution #1: Clear localStorage when session ends
+      if (studentCodeFromUrl && sessionCode) {
+        const storageKey = `student_${sessionCode}_${studentCodeFromUrl}`;
+        localStorage.removeItem(storageKey);
+        console.log('Session completed - cleared stored session data');
+      }
     };
     
     const handleError = async (message) => {
@@ -381,19 +392,36 @@ export default function SessionPage() {
       // If student code is in URL, this is a personal link
       // Try to get stored name from localStorage
       const storageKey = `student_${sessionCode}_${studentCodeFromUrl}`;
-      const storedName = localStorage.getItem(storageKey);
+      const storedData = localStorage.getItem(storageKey);
       
-      if (storedName) {
-        // Auto-rejoin with stored name
-        setUserName(storedName);
-        setIsJoining(true);
-        setHasAttemptedJoin(true);
-        socket.emit('joinSession', {
-          sessionCode,
-          playerName: storedName,
-          studentCode: studentCodeFromUrl,
-          role: 'student'
-        });
+      if (storedData) {
+        try {
+          const parsed = JSON.parse(storedData);
+          const EIGHT_MINUTES = 8 * 60 * 1000; // 8 minutes in milliseconds
+          const age = Date.now() - parsed.timestamp;
+          
+          // Only auto-rejoin if data is less than 8 minutes old
+          if (age < EIGHT_MINUTES) {
+            // Auto-rejoin with stored name
+            setUserName(parsed.name);
+            setIsJoining(true);
+            setHasAttemptedJoin(true);
+            socket.emit('joinSession', {
+              sessionCode,
+              playerName: parsed.name,
+              studentCode: studentCodeFromUrl,
+              role: 'student'
+            });
+          } else {
+            // Data is too old, clear it
+            console.log('Session data expired (>8 minutes), clearing...');
+            localStorage.removeItem(storageKey);
+          }
+        } catch (err) {
+          // Invalid JSON format (old data format), clear it
+          console.log('Invalid stored data format, clearing...');
+          localStorage.removeItem(storageKey);
+        }
       }
       // If no stored name, user will need to enter it in the form below
     } else {
