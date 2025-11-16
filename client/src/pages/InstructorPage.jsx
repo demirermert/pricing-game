@@ -23,10 +23,10 @@ const DEFAULT_CONFIG = {
   alpha: 1,
   sigma: 5,
   // Hotelling model parameters
-  travelCost: 1,
+  travelCost: 2,
   consumerValue: 100,
-  x1: 25,
-  x2: 75,
+  x1: 0,
+  x2: 100,
   priceMin: 0,
   priceMax: 100,
   defaultPrice: 10,
