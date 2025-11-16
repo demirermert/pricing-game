@@ -97,18 +97,35 @@ export function createGameManager(io) {
   }
 
   function broadcastSession(session) {
+    const now = Date.now();
+    const AWAY_THRESHOLD = 15000; // 15 seconds
+    
     const payload = {
       code: session.code,
       status: session.status,
       currentRound: session.currentRound,
       config: session.config,
-      players: Array.from(session.players.values()).map(player => ({
-        socketId: player.socketId,
-        name: player.name,
-        role: player.role,
-        connected: player.connected,
-        pairId: player.pairId || null
-      })),
+      players: Array.from(session.players.values()).map(player => {
+        // Determine connection status
+        let connectionStatus = 'offline';
+        if (player.connected) {
+          const timeSinceHeartbeat = now - (player.lastHeartbeat || now);
+          if (timeSinceHeartbeat < AWAY_THRESHOLD) {
+            connectionStatus = 'online';
+          } else {
+            connectionStatus = 'away'; // Connected but no recent heartbeat
+          }
+        }
+        
+        return {
+          socketId: player.socketId,
+          name: player.name,
+          role: player.role,
+          connected: player.connected, // Keep for backward compatibility
+          connectionStatus: connectionStatus, // New: 'online', 'away', or 'offline'
+          pairId: player.pairId || null
+        };
+      }),
       pairs: session.pairs.map(pair => ({
         id: pair.id,
         playerA: sanitizePlayerRef(session.players.get(pair.playerA)),
@@ -160,6 +177,7 @@ export function createGameManager(io) {
         session.players.delete(existingPlayer.socketId);
         existingPlayer.socketId = socket.id;
         existingPlayer.connected = true;
+        existingPlayer.lastHeartbeat = Date.now(); // Reset heartbeat on reconnect
         session.players.set(socket.id, existingPlayer);
         socket.join(session.code);
         socket.data.sessionCode = session.code;
@@ -185,6 +203,7 @@ export function createGameManager(io) {
       name: playerName,
       role: role === 'instructor' ? 'instructor' : 'student',
       connected: true,
+      lastHeartbeat: Date.now(), // Track last heartbeat for away detection
       pairId: null,
       history: [],
       dbId: null,
@@ -805,6 +824,20 @@ export function createGameManager(io) {
     });
   }
 
+  function handleHeartbeat(socketId) {
+    sessions.forEach(session => {
+      const player = session.players.get(socketId);
+      if (player) {
+        player.lastHeartbeat = Date.now();
+        // Only broadcast every 5 seconds to reduce network traffic
+        if (!session.lastHeartbeatBroadcast || Date.now() - session.lastHeartbeatBroadcast > 5000) {
+          session.lastHeartbeatBroadcast = Date.now();
+          broadcastSession(session);
+        }
+      }
+    });
+  }
+
   function handleChatMessage(socket, { sessionCode, message }) {
     try {
       const session = ensureSession(sessionCode);
@@ -865,7 +898,8 @@ export function createGameManager(io) {
     handlePriceSubmission,
     handleChatMessage,
     handleEndSession,
-    handleDisconnect
+    handleDisconnect,
+    handleHeartbeat
   };
 }
 

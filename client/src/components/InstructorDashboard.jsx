@@ -403,13 +403,21 @@ export function InstructorDashboard({
                         <span style={{
                           padding: '0.25rem 0.5rem',
                           borderRadius: '12px',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          backgroundColor: player.connected ? '#d1fae5' : '#fee2e2',
-                          color: player.connected ? '#065f46' : '#991b1b'
-                        }}>
-                          {player.connected ? '🟢 Online' : '🔴 Offline'}
-                        </span>
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        backgroundColor: 
+                          player.connectionStatus === 'online' ? '#d1fae5' : 
+                          player.connectionStatus === 'away' ? '#fef3c7' : 
+                          '#fee2e2',
+                        color: 
+                          player.connectionStatus === 'online' ? '#065f46' : 
+                          player.connectionStatus === 'away' ? '#92400e' : 
+                          '#991b1b'
+                      }}>
+                        {player.connectionStatus === 'online' ? '🟢 Online' : 
+                         player.connectionStatus === 'away' ? '🟡 Away' : 
+                         '🔴 Offline'}
+                      </span>
                       </td>
                       <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.875rem', borderBottom: '1px solid #e5e7eb' }}>
                         {player.pairId || '-'}

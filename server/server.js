@@ -133,6 +133,10 @@ io.on('connection', socket => {
     manager.handleEndSession(socket, sessionCode);
   });
 
+  socket.on('heartbeat', () => {
+    manager.handleHeartbeat(socket.id);
+  });
+
   socket.on('disconnect', () => {
     manager.handleDisconnect(socket.id);
   });
