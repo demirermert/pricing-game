@@ -1064,9 +1064,9 @@ export function StudentView({
               <rect x="0" y="0" width="800" height="400" fill="white" />
               
               {/* Y-axis */}
-              <line x1="60" y1="60" x2="60" y2="350" stroke="#d1d5db" strokeWidth="2" />
+              <line x1="80" y1="60" x2="80" y2="340" stroke="#d1d5db" strokeWidth="2" />
               {/* X-axis */}
-              <line x1="60" y1="350" x2="760" y2="350" stroke="#d1d5db" strokeWidth="2" />
+              <line x1="80" y1="340" x2="760" y2="340" stroke="#d1d5db" strokeWidth="2" />
               
               {/* Y-axis labels (Price) */}
               {(() => {
@@ -1079,12 +1079,12 @@ export function StudentView({
                 
                 for (let i = 0; i <= numLabels; i++) {
                   const value = minPrice + (priceRange * i / numLabels);
-                  const y = 350 - (i / numLabels) * 290;
+                  const y = 340 - (i / numLabels) * 280;
                   yLabels.push(
                     <g key={`ylabel-${i}`}>
-                      <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
-                      <line x1="60" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
-                      <text x="52" y={y + 5} textAnchor="end" fill="#6b7280" className="chart-ylabel">
+                      <line x1="75" y1={y} x2="80" y2={y} stroke="#9ca3af" strokeWidth="1" />
+                      <line x1="80" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
+                      <text x="70" y={y + 5} textAnchor="end" fill="#6b7280" className="chart-ylabel">
                         ${value.toFixed(0)}
                       </text>
                     </g>
@@ -1096,14 +1096,14 @@ export function StudentView({
               {/* X-axis labels (Rounds) */}
               {history.map((item, index) => {
                 const numRounds = history.length;
-                const chartWidth = 700;
+                const chartWidth = 680;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
-                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                const x = 80 + (numRounds > 1 ? spacing * index : chartWidth / 2);
                 
                 return (
                   <g key={`xlabel-${item.round}`}>
-                    <line x1={x} y1="350" x2={x} y2="355" stroke="#9ca3af" strokeWidth="1" />
-                    <text x={x} y="376" textAnchor="middle" fill="#6b7280" className="chart-xlabel">
+                    <line x1={x} y1="340" x2={x} y2="345" stroke="#9ca3af" strokeWidth="1" />
+                    <text x={x} y="362" textAnchor="middle" fill="#6b7280" className="chart-xlabel">
                       R{item.round}
                     </text>
                   </g>
@@ -1120,10 +1120,10 @@ export function StudentView({
                     const priceRange = maxPrice - minPrice || 1;
                     
                     const numRounds = history.length;
-                    const chartWidth = 700;
+                    const chartWidth = 680;
                     const spacing = chartWidth / (numRounds - 1);
-                    const x = 60 + spacing * index;
-                    const y = 350 - ((item.price - minPrice) / priceRange) * 290;
+                    const x = 80 + spacing * index;
+                    const y = 340 - ((item.price - minPrice) / priceRange) * 280;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1145,10 +1145,10 @@ export function StudentView({
                     const priceRange = maxPrice - minPrice || 1;
                     
                     const numRounds = history.length;
-                    const chartWidth = 700;
+                    const chartWidth = 680;
                     const spacing = chartWidth / (numRounds - 1);
-                    const x = 60 + spacing * index;
-                    const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 290;
+                    const x = 80 + spacing * index;
+                    const y = 340 - ((item.opponentPrice - minPrice) / priceRange) * 280;
                     
                     return `${x},${y}`;
                   }).join(' ')}
@@ -1168,10 +1168,10 @@ export function StudentView({
                 const priceRange = maxPrice - minPrice || 1;
                 
                 const numRounds = history.length;
-                const chartWidth = 700;
+                const chartWidth = 680;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
-                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 350 - ((item.price - minPrice) / priceRange) * 290;
+                const x = 80 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                const y = 340 - ((item.price - minPrice) / priceRange) * 280;
                 
                 return (
                   <circle
@@ -1194,10 +1194,10 @@ export function StudentView({
                 const priceRange = maxPrice - minPrice || 1;
                 
                 const numRounds = history.length;
-                const chartWidth = 700;
+                const chartWidth = 680;
                 const spacing = chartWidth / (numRounds > 1 ? numRounds - 1 : 1);
-                const x = 60 + (numRounds > 1 ? spacing * index : chartWidth / 2);
-                const y = 350 - ((item.opponentPrice - minPrice) / priceRange) * 290;
+                const x = 80 + (numRounds > 1 ? spacing * index : chartWidth / 2);
+                const y = 340 - ((item.opponentPrice - minPrice) / priceRange) * 280;
                 
                 return (
                   <circle
@@ -1213,7 +1213,7 @@ export function StudentView({
               })}
               
               {/* Legend */}
-              <g transform="translate(620, 20)">
+              <g transform="translate(550, 10)">
                 <circle cx="10" cy="0" r="6" fill="#3b82f6" stroke="white" strokeWidth="2" />
                 <text x="22" y="6" fill="#374151" className="chart-legend">Your Price</text>
                 
@@ -1222,10 +1222,10 @@ export function StudentView({
               </g>
               
               {/* Axis labels */}
-              <text x="10" y="190" textAnchor="middle" fill="#6b7280" className="chart-axis-title" transform="rotate(-90, 10, 190)">
+              <text x="25" y="200" textAnchor="middle" fill="#6b7280" className="chart-axis-title" transform="rotate(-90, 25, 200)">
                 Price ($)
               </text>
-              <text x="410" y="390" textAnchor="middle" fill="#6b7280" className="chart-axis-title">
+              <text x="420" y="380" textAnchor="middle" fill="#6b7280" className="chart-axis-title">
                 Round
               </text>
             </svg>
