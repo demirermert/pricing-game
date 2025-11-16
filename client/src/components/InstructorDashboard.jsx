@@ -1035,9 +1035,9 @@ export function InstructorDashboard({
                     {hoveredPlayerPoint === `${pair.pairIndex}-A` && (
                       <g>
                         <rect
-                          x={x - 70}
+                          x={x - 85}
                           y={yA - 60}
-                          width="140"
+                          width="170"
                           height="35"
                           fill="rgba(59, 130, 246, 0.95)"
                           rx="4"
@@ -1051,7 +1051,7 @@ export function InstructorDashboard({
                           fontSize="12"
                           fontWeight="600"
                         >
-                          {pair.playerA}
+                          {pair.playerA} (Pair {pair.pairIndex})
                         </text>
                       </g>
                     )}
@@ -1060,9 +1060,9 @@ export function InstructorDashboard({
                     {hoveredPlayerPoint === `${pair.pairIndex}-B` && (
                       <g>
                         <rect
-                          x={x - 70}
+                          x={x - 85}
                           y={yB + 20}
-                          width="140"
+                          width="170"
                           height="35"
                           fill="rgba(16, 185, 129, 0.95)"
                           rx="4"
@@ -1076,7 +1076,7 @@ export function InstructorDashboard({
                           fontSize="12"
                           fontWeight="600"
                         >
-                          {pair.playerB}
+                          {pair.playerB} (Pair {pair.pairIndex})
                         </text>
                       </g>
                     )}
