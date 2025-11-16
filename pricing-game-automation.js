@@ -698,7 +698,7 @@ async function main() {
     
     // Setup students
     const studentPages = [];
-    const MAX_OPEN_TABS = 31;
+    const MAX_OPEN_TABS = 100;
     const delayBetweenStudents = USE_ONLINE ? 500 : 100;
     console.log(`\n👥 Creating ${NUM_STUDENTS} student tabs...`);
     if (USE_ONLINE) {

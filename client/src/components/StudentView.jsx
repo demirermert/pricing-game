@@ -150,27 +150,58 @@ export function StudentView({
                   fontSize: '0.9rem',
                   color: '#1e3a8a'
                 }}>
-                  <div>
-                    <strong>Market Size:</strong> {session.config.marketSize} customers
-                  </div>
-                  <div>
-                    <strong>Reference Price:</strong> ${(10 / session.config.alpha).toFixed(2)}
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                      (Monopoly price)
-                    </div>
-                  </div>
-                  <div>
-                    <strong>Price Sensitivity (α):</strong> {session.config.alpha}
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                      {session.config.alpha < 1 ? 'Low sensitivity' : session.config.alpha < 2 ? 'Moderate sensitivity' : 'High sensitivity'}
-                    </div>
-                  </div>
-                  <div>
-                    <strong>Product Differentiation (σ):</strong> {session.config.sigma}
-                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                      {session.config.sigma < 3 ? 'Very similar products' : session.config.sigma < 7 ? 'Moderately differentiated' : 'Highly differentiated'}
-                    </div>
-                  </div>
+                  {session.config.modelType === 'hotelling' ? (
+                    <>
+                      <div>
+                        <strong>Travel Cost (t):</strong> {session.config.travelCost}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          Cost per unit distance
+                        </div>
+                      </div>
+                      <div>
+                        <strong>Consumer Valuation (V):</strong> ${session.config.consumerValue}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          Value for the product
+                        </div>
+                      </div>
+                      <div>
+                        <strong>Your Location (x₁):</strong> {session.config.x1}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          Position on [0, 100]
+                        </div>
+                      </div>
+                      <div>
+                        <strong>Opponent Location (x₂):</strong> {session.config.x2}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          Position on [0, 100]
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <strong>Market Size:</strong> {session.config.marketSize} customers
+                      </div>
+                      <div>
+                        <strong>Reference Price:</strong> ${(10 / session.config.alpha).toFixed(2)}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          (Monopoly price)
+                        </div>
+                      </div>
+                      <div>
+                        <strong>Price Sensitivity (α):</strong> {session.config.alpha}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          {session.config.alpha < 1 ? 'Low sensitivity' : session.config.alpha < 2 ? 'Moderate sensitivity' : 'High sensitivity'}
+                        </div>
+                      </div>
+                      <div>
+                        <strong>Product Differentiation (σ):</strong> {session.config.sigma}
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                          {session.config.sigma < 3 ? 'Very similar products' : session.config.sigma < 7 ? 'Moderately differentiated' : 'Highly differentiated'}
+                        </div>
+                      </div>
+                    </>
+                  )}
                   {!session.config.hideRoundCount && (
                     <div>
                       <strong>Number of Rounds:</strong> {session.config.rounds}

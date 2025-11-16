@@ -1,4 +1,4 @@
-import { computeLogitDemand } from './demandModel.js';
+import { computeDemand } from './demandModel.js';
 import * as db from './database.js';
 import { getAIPriceDecision, isOpenAIInitialized } from './aiPlayer.js';
 
@@ -615,7 +615,7 @@ export function createGameManager(io) {
       if (!playerA || !playerB) return;
       const priceA = submission[pair.playerA].price;
       const priceB = submission[pair.playerB].price;
-      const { demandA, demandB, shareA, shareB } = computeLogitDemand({
+      const { demandA, demandB, shareA, shareB } = computeDemand({
         priceA,
         priceB,
         config: session.config

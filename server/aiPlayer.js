@@ -73,10 +73,41 @@ export async function getAIPriceDecision(config, history = [], opponentHistory =
 function buildGamePrompt(config, history, opponentHistory) {
   const currentRound = history.length + 1;
   
-  // Calculate monopoly price (delta/alpha where delta = 10)
-  const monopolyPrice = 10 / config.alpha;
+  let prompt = '';
   
-  let prompt = `You are playing a competitive pricing game. Here are the rules:
+  if (config.modelType === 'hotelling') {
+    // Hotelling model prompt
+    prompt = `You are playing a competitive pricing game using the Hotelling location model. Here are the rules:
+
+GAME RULES:
+- Consumer locations: uniformly distributed on [0, 100]
+- Your location: ${config.x1}
+- Opponent location: ${config.x2}
+- Travel cost (t): ${config.travelCost} per unit distance
+- Consumer valuation (V): $${config.consumerValue}
+- Price range: $${config.priceBounds.min} to $${config.priceBounds.max}
+- Total rounds: ${config.rounds}
+- Current round: ${currentRound}
+
+HOW DEMAND WORKS:
+- Consumers buy from whoever offers the lowest total cost (price + travel cost)
+- Your demand = number of consumers closer to you after accounting for price difference
+- If prices are equal, demand splits based on locations
+- Your profit = YourPrice × YourDemand
+
+KEY INSIGHTS:
+- Lower prices attract consumers who are farther from you
+- The indifferent consumer location: x* = 50 + (OpponentPrice - YourPrice)/(2×${config.travelCost})
+- Your demand is all consumers from 0 to x* (capped at 0-100)
+
+OBJECTIVE:
+Maximize your total profit across all rounds.
+`;
+  } else {
+    // Logit model prompt (default)
+    const monopolyPrice = 10 / config.alpha;
+    
+    prompt = `You are playing a competitive pricing game. Here are the rules:
 
 GAME RULES:
 - Market size: ${config.marketSize} units
@@ -94,6 +125,7 @@ KEY INSIGHTS:
 OBJECTIVE:
 Maximize your total profit across all rounds.
 `;
+  }
 
   // Add history if this is not the first round
   if (history.length > 0) {

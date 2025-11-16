@@ -18,8 +18,15 @@ const DEFAULT_CONFIG = {
   differentTimePerRound: false,
   roundTimes: [],
   marketSize: 100,
+  modelType: 'logit', // 'logit' or 'hotelling'
+  // Logit model parameters
   alpha: 1,
   sigma: 5,
+  // Hotelling model parameters
+  travelCost: 1,
+  consumerValue: 10,
+  x1: 25,
+  x2: 75,
   priceMin: 0,
   priceMax: 100,
   defaultPrice: 10,
@@ -78,8 +85,15 @@ export default function InstructorPage() {
             : Number(instructorConfig.roundTime),
           breakTime: Number(instructorConfig.breakTime),
           marketSize: Number(instructorConfig.marketSize),
+          modelType: instructorConfig.modelType,
+          // Logit parameters
           alpha: Number(instructorConfig.alpha),
           sigma: Number(instructorConfig.sigma),
+          // Hotelling parameters
+          travelCost: Number(instructorConfig.travelCost),
+          consumerValue: Number(instructorConfig.consumerValue),
+          x1: Number(instructorConfig.x1),
+          x2: Number(instructorConfig.x2),
           priceBounds: {
             min: Number(instructorConfig.priceMin),
             max: Number(instructorConfig.priceMax)
@@ -364,24 +378,89 @@ export default function InstructorPage() {
                   onChange={event => setInstructorConfig(cfg => ({ ...cfg, marketSize: event.target.value }))}
                 />
               </div>
+              
               <div className="input-row">
-                <label>Price sensitivity (alpha)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={instructorConfig.alpha}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, alpha: event.target.value }))}
-                />
+                <label>Competition Model</label>
+                <select
+                  value={instructorConfig.modelType}
+                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, modelType: event.target.value }))}
+                  style={{ padding: '0.5rem', fontSize: '1rem', borderRadius: '4px', border: '1px solid #d1d5db' }}
+                >
+                  <option value="logit">Logit Model</option>
+                  <option value="hotelling">Hotelling Model</option>
+                </select>
               </div>
-              <div className="input-row">
-                <label>Differentiation (sigma)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={instructorConfig.sigma}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, sigma: event.target.value }))}
-                />
-              </div>
+              
+              {instructorConfig.modelType === 'logit' && (
+                <>
+                  <div className="input-row">
+                    <label>Price sensitivity (alpha)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={instructorConfig.alpha}
+                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, alpha: event.target.value }))}
+                    />
+                  </div>
+                  <div className="input-row">
+                    <label>Differentiation (sigma)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={instructorConfig.sigma}
+                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, sigma: event.target.value }))}
+                    />
+                  </div>
+                </>
+              )}
+              
+              {instructorConfig.modelType === 'hotelling' && (
+                <>
+                  <div className="input-row">
+                    <label>Travel cost (t)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={instructorConfig.travelCost}
+                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, travelCost: event.target.value }))}
+                    />
+                  </div>
+                  <div className="input-row">
+                    <label>Consumer valuation (V)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={instructorConfig.consumerValue}
+                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, consumerValue: event.target.value }))}
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1rem' }}>
+                    <div className="input-row">
+                      <label>Firm 1 location (x₁)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={instructorConfig.x1}
+                        onChange={event => setInstructorConfig(cfg => ({ ...cfg, x1: event.target.value }))}
+                      />
+                    </div>
+                    <div className="input-row">
+                      <label>Firm 2 location (x₂)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={instructorConfig.x2}
+                        onChange={event => setInstructorConfig(cfg => ({ ...cfg, x2: event.target.value }))}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+              
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1rem' }}>
                 <div className="input-row">
                   <label>Min price</label>
