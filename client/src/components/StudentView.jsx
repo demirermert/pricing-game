@@ -153,7 +153,7 @@ export function StudentView({
                   {session.config.modelType === 'hotelling' ? (
                     <>
                       <div>
-                        <strong>Travel Cost (t):</strong> {session.config.travelCost}
+                        <strong>Travel Cost (t):</strong> ${session.config.travelCost}
                         <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
                           Cost per unit distance
                         </div>
