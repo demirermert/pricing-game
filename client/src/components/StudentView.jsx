@@ -947,12 +947,12 @@ export function StudentView({
             {history.map(item => (
                   <tr key={item.round}>
                     <td>{item.round}</td>
-                    <td style={{ fontWeight: 600 }}>{item.price.toFixed(2)}</td>
-                    <td>{item.opponentPrice?.toFixed(2) || '-'}</td>
+                    <td style={{ fontWeight: 600 }}>{item.price.toFixed(1)}</td>
+                    <td>{item.opponentPrice?.toFixed(1) || '-'}</td>
                     <td style={{ fontWeight: 600 }}>{((item.share || 0) * 100).toFixed(1)}%</td>
                     <td>{item.opponentShare ? ((item.opponentShare || 0) * 100).toFixed(1) + '%' : '-'}</td>
-                    <td style={{ fontWeight: 600, color: '#10b981' }}>${item.profit.toFixed(0)}</td>
-                    <td style={{ color: '#6b7280' }}>${item.opponentProfit?.toFixed(0) || '-'}</td>
+                    <td style={{ fontWeight: 600, color: '#10b981' }}>${item.profit.toFixed(1)}</td>
+                    <td style={{ color: '#6b7280' }}>${item.opponentProfit?.toFixed(1) || '-'}</td>
                   </tr>
                 ))}
                 {/* Total Row */}
@@ -967,10 +967,10 @@ export function StudentView({
                   <td>-</td>
                   <td>-</td>
                   <td style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem' }}>
-                    ${history.reduce((sum, item) => sum + (item.profit || 0), 0).toFixed(0)}
+                    ${history.reduce((sum, item) => sum + (item.profit || 0), 0).toFixed(1)}
                   </td>
                   <td style={{ fontWeight: 700, color: '#6b7280', fontSize: '1.1rem' }}>
-                    ${history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0).toFixed(0)}
+                    ${history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0).toFixed(1)}
                   </td>
                 </tr>
               </tbody>
