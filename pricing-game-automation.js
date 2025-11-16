@@ -613,6 +613,19 @@ async function autoSubmitForStudent(studentPage, studentNum, roundsToPlay, price
   
   for (let round = 1; round <= roundsToPlay; round++) {
     try {
+      // Check if game has ended before starting this round
+      const gameEnded = await studentPage.evaluate(() => {
+        const bodyText = document.body.textContent;
+        return bodyText.includes('Game Summary') || 
+               bodyText.includes('Session Complete') ||
+               bodyText.includes('Final Results');
+      }).catch(() => false);
+      
+      if (gameEnded) {
+        console.log(`🏁 Student ${studentNum}: Game ended, stopping auto-submit (completed ${round - 1} rounds)`);
+        break;
+      }
+      
       // Wait for round to start - look for enabled price input
       console.log(`⏳ Student ${studentNum} Round ${round}: Waiting for round to start...`);
       
@@ -621,6 +634,19 @@ async function autoSubmitForStudent(studentPage, studentNum, roundsToPlay, price
       const maxAttempts = 45; // 45 seconds max wait
       
       while (!inputEnabled && attempts < maxAttempts) {
+        // Check again if game ended while waiting
+        const gameEndedWhileWaiting = await studentPage.evaluate(() => {
+          const bodyText = document.body.textContent;
+          return bodyText.includes('Game Summary') || 
+                 bodyText.includes('Session Complete') ||
+                 bodyText.includes('Final Results');
+        }).catch(() => false);
+        
+        if (gameEndedWhileWaiting) {
+          console.log(`🏁 Student ${studentNum}: Game ended while waiting for round ${round}`);
+          return; // Exit the entire function
+        }
+        
         inputEnabled = await studentPage.evaluate(() => {
           const input = document.querySelector('input[type="number"]');
           return input && !input.disabled;
@@ -633,7 +659,16 @@ async function autoSubmitForStudent(studentPage, studentNum, roundsToPlay, price
       }
       
       if (!inputEnabled) {
-        console.log(`⚠️  Student ${studentNum} Round ${round}: Input never became ready`);
+        console.log(`⚠️  Student ${studentNum} Round ${round}: Input never became ready (may have ended)`);
+        // Check one more time if game ended
+        const finalCheck = await studentPage.evaluate(() => {
+          const bodyText = document.body.textContent;
+          return bodyText.includes('Game Summary');
+        }).catch(() => false);
+        if (finalCheck) {
+          console.log(`🏁 Student ${studentNum}: Confirmed game ended`);
+          break;
+        }
         continue;
       }
       
@@ -1097,22 +1132,23 @@ async function main() {
             
             report.totalStudents = report.playersData.length;
             
-            // Get leaderboard to check for missing data
+            // Get unique player names from leaderboard to check for missing data
             const leaderboardRows = Array.from(document.querySelectorAll('table tbody tr'));
-            const playersWithScores = [];
+            const uniquePlayersWithScores = new Set();
             
             leaderboardRows.forEach(row => {
               const cells = row.querySelectorAll('td');
               if (cells.length >= 2) {
                 const name = cells[0]?.textContent.trim();
                 const profit = cells[1]?.textContent.trim();
-                if (name && profit && profit !== '-' && profit !== '0') {
-                  playersWithScores.push(name);
+                // Only count unique player names (avoid counting duplicates from pair table)
+                if (name && profit && !name.includes('Pair') && !name.includes('Total')) {
+                  uniquePlayersWithScores.add(name);
                 }
               }
             });
             
-            report.playersWithScores = playersWithScores.length;
+            report.playersWithScores = uniquePlayersWithScores.size;
             
             return report;
           }).catch(() => null);
