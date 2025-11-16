@@ -20,9 +20,9 @@ const DEFAULT_CONFIG = {
   priceMin: 0,
   priceMax: 100,
   defaultPrice: 10,
-  enableChat: true,
-  hideRoundCount: true,
-  showOpponentName: true
+  enableChat: false,
+  hideRoundCount: false,
+  showOpponentName: false
 };
 
 export default function InstructorPage() {
