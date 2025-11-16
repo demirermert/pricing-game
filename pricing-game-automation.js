@@ -37,11 +37,8 @@ for (let i = 2; i < process.argv.length; i++) {
   }
 }
 
-// Ensure even number of students for pairing
-if (NUM_STUDENTS % 2 !== 0) {
-  NUM_STUDENTS += 1;
-  console.log(`⚠️  Adjusted to ${NUM_STUDENTS} students (must be even for pairing)`);
-}
+// NUM_STUDENTS can now be any number (odd or even)
+// If odd, the server will automatically add an AI player for pairing
 
 console.log(`Configuration: ${NUM_STUDENTS} students, Auto-submit: ${AUTO_SUBMIT}, Online: ${USE_ONLINE}${NUM_ROUNDS ? `, Rounds: ${NUM_ROUNDS}` : ''}${MANUAL_START ? ', Manual start: true' : ''}`);
 
