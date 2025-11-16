@@ -852,12 +852,8 @@ export function StudentView({
                 <div style={{ 
                   fontSize: '2rem', 
                   fontWeight: 700,
-                  color: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  color: '#10b981'
                 }}>
-                  <span style={{ fontSize: '1.5rem' }}>↗</span>
                   ${history.reduce((sum, item) => sum + (item.profit || 0), 0).toFixed(0)}
                 </div>
               </div>
@@ -954,12 +950,8 @@ export function StudentView({
                 <div style={{ 
                   fontSize: '2rem', 
                   fontWeight: 700,
-                  color: '#10b981',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
+                  color: '#10b981'
                 }}>
-                  <span style={{ fontSize: '1.5rem' }}>↗</span>
                   ${history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0).toFixed(0)}
                 </div>
               </div>
