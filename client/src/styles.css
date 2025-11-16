@@ -236,3 +236,47 @@ button.primary:disabled {
     width: 60px;  /* Even smaller on very small screens */
   }
 }
+
+/* Price Chart Styling */
+.chart-ylabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chart-xlabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chart-legend {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chart-axis-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Mobile: Larger fonts for chart */
+@media (max-width: 768px) {
+  .chart-ylabel {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .chart-xlabel {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .chart-legend {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .chart-axis-title {
+    font-size: 20px;
+    font-weight: 700;
+  }
+}

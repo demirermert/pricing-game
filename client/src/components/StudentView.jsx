@@ -1084,7 +1084,7 @@ export function StudentView({
                     <g key={`ylabel-${i}`}>
                       <line x1="55" y1={y} x2="60" y2={y} stroke="#9ca3af" strokeWidth="1" />
                       <line x1="60" y1={y} x2="760" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
-                      <text x="52" y={y + 5} textAnchor="end" fill="#6b7280" fontSize="22" fontWeight="600">
+                      <text x="52" y={y + 5} textAnchor="end" fill="#6b7280" className="chart-ylabel">
                         ${value.toFixed(0)}
                       </text>
                     </g>
@@ -1103,7 +1103,7 @@ export function StudentView({
                 return (
                   <g key={`xlabel-${item.round}`}>
                     <line x1={x} y1="350" x2={x} y2="355" stroke="#9ca3af" strokeWidth="1" />
-                    <text x={x} y="376" textAnchor="middle" fill="#6b7280" fontSize="22" fontWeight="600">
+                    <text x={x} y="376" textAnchor="middle" fill="#6b7280" className="chart-xlabel">
                       R{item.round}
                     </text>
                   </g>
@@ -1215,17 +1215,17 @@ export function StudentView({
               {/* Legend */}
               <g transform="translate(620, 20)">
                 <circle cx="10" cy="0" r="6" fill="#3b82f6" stroke="white" strokeWidth="2" />
-                <text x="22" y="6" fill="#374151" fontSize="20" fontWeight="600">Your Price</text>
+                <text x="22" y="6" fill="#374151" className="chart-legend">Your Price</text>
                 
                 <circle cx="10" cy="28" r="6" fill="#f59e0b" stroke="white" strokeWidth="2" />
-                <text x="22" y="34" fill="#374151" fontSize="20" fontWeight="600">Opponent</text>
+                <text x="22" y="34" fill="#374151" className="chart-legend">Opponent</text>
               </g>
               
               {/* Axis labels */}
-              <text x="20" y="190" textAnchor="middle" fill="#6b7280" fontSize="20" fontWeight="700" transform="rotate(-90, 20, 190)">
+              <text x="20" y="190" textAnchor="middle" fill="#6b7280" className="chart-axis-title" transform="rotate(-90, 20, 190)">
                 Price ($)
               </text>
-              <text x="410" y="390" textAnchor="middle" fill="#6b7280" fontSize="20" fontWeight="700">
+              <text x="410" y="390" textAnchor="middle" fill="#6b7280" className="chart-axis-title">
                 Round
               </text>
             </svg>
