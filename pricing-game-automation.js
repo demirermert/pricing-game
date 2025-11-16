@@ -373,7 +373,7 @@ async function autoSubmitForStudent(studentPage, studentNum, roundsToPlay, price
       
       // Generate random price within bounds
       const minPrice = priceBounds?.min || 0;
-      const maxPrice = priceBounds?.max || 100;
+      const maxPrice = priceBounds?.max || 20;
       const randomPrice = (Math.random() * (maxPrice - minPrice) + minPrice).toFixed(2);
       
       console.log(`💰 Student ${studentNum} Round ${round}: Attempting to submit price $${randomPrice}`);
@@ -565,7 +565,7 @@ async function main() {
           
           // Get game configuration from instructor page
           let ROUNDS = 2;
-          let priceBounds = { min: 0, max: 100 };
+          let priceBounds = { min: 0, max: 20 };
           
           try {
             const config = await instructorPage.evaluate(() => {
@@ -585,7 +585,7 @@ async function main() {
               } : { min: 0, max: 100 };
               
               return { rounds, bounds };
-            }).catch(() => ({ rounds: 2, bounds: { min: 0, max: 100 } }));
+            }).catch(() => ({ rounds: 2, bounds: { min: 0, max: 20 } }));
             
             ROUNDS = config.rounds;
             priceBounds = config.bounds;

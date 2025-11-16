@@ -930,46 +930,57 @@ export function StudentView({
 
       {history && history.length > 0 && (
         <div style={{ marginTop: '1.5rem' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table">
+          <div style={{ width: '100%', overflowX: 'visible' }}>
+            <table className="table" style={{ 
+              width: '100%', 
+              fontSize: '0.875rem',
+              tableLayout: 'fixed'
+            }}>
               <thead>
                 <tr>
-                  <th>Round</th>
-                  <th>Your Price</th>
-                  <th>Opp. Price</th>
-                  <th>Your Share</th>
-                  <th>Opp. Share</th>
-                  <th>Your Profit</th>
-                  <th>Opp. Profit</th>
+                  <th style={{ width: '8%', padding: '0.5rem 0.25rem' }}>Rnd</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>You $</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>Opp $</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>You %</th>
+                  <th style={{ width: '13%', padding: '0.5rem 0.25rem' }}>Opp %</th>
+                  <th style={{ width: '20%', padding: '0.5rem 0.25rem' }}>Your Profit</th>
+                  <th style={{ width: '20%', padding: '0.5rem 0.25rem' }}>Opp Profit</th>
                 </tr>
               </thead>
               <tbody>
-            {history.map(item => (
+            {history.map(item => {
+              const yourSharePct = (item.share || 0) * 100;
+              const oppSharePct = (item.opponentShare || 0) * 100;
+              const yourShareStr = yourSharePct >= 1 ? yourSharePct.toFixed(0) : yourSharePct.toFixed(1);
+              const oppShareStr = oppSharePct >= 1 ? oppSharePct.toFixed(0) : oppSharePct.toFixed(1);
+              
+              return (
                   <tr key={item.round}>
-                    <td>{item.round}</td>
-                    <td style={{ fontWeight: 600 }}>{item.price.toFixed(1)}</td>
-                    <td>{item.opponentPrice?.toFixed(1) || '-'}</td>
-                    <td style={{ fontWeight: 600 }}>{((item.share || 0) * 100).toFixed(1)}%</td>
-                    <td>{item.opponentShare ? ((item.opponentShare || 0) * 100).toFixed(1) + '%' : '-'}</td>
-                    <td style={{ fontWeight: 600, color: '#10b981' }}>${item.profit.toFixed(1)}</td>
-                    <td style={{ color: '#6b7280' }}>${item.opponentProfit?.toFixed(1) || '-'}</td>
+                    <td style={{ padding: '0.5rem 0.25rem' }}>{item.round}</td>
+                    <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem' }}>${item.price.toFixed(1)}</td>
+                    <td style={{ padding: '0.5rem 0.25rem' }}>${item.opponentPrice?.toFixed(1) || '-'}</td>
+                    <td style={{ fontWeight: 600, padding: '0.5rem 0.25rem' }}>{yourShareStr}%</td>
+                    <td style={{ padding: '0.5rem 0.25rem' }}>{item.opponentShare ? oppShareStr + '%' : '-'}</td>
+                    <td style={{ fontWeight: 600, color: '#10b981', padding: '0.5rem 0.25rem' }}>${item.profit.toFixed(1)}</td>
+                    <td style={{ color: '#6b7280', padding: '0.5rem 0.25rem' }}>${item.opponentProfit?.toFixed(1) || '-'}</td>
                   </tr>
-                ))}
+              );
+            })}
                 {/* Total Row */}
                 <tr style={{ 
                   borderTop: '3px solid #374151',
                   backgroundColor: '#f9fafb',
                   fontWeight: 700
                 }}>
-                  <td style={{ fontWeight: 700 }}>Total</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
-                  <td style={{ fontWeight: 700, color: '#10b981', fontSize: '1.1rem' }}>
+                  <td style={{ fontWeight: 700, padding: '0.5rem 0.25rem' }}>Total</td>
+                  <td style={{ padding: '0.5rem 0.25rem' }}>-</td>
+                  <td style={{ padding: '0.5rem 0.25rem' }}>-</td>
+                  <td style={{ padding: '0.5rem 0.25rem' }}>-</td>
+                  <td style={{ padding: '0.5rem 0.25rem' }}>-</td>
+                  <td style={{ fontWeight: 700, color: '#10b981', fontSize: '1rem', padding: '0.5rem 0.25rem' }}>
                     ${history.reduce((sum, item) => sum + (item.profit || 0), 0).toFixed(1)}
                   </td>
-                  <td style={{ fontWeight: 700, color: '#6b7280', fontSize: '1.1rem' }}>
+                  <td style={{ fontWeight: 700, color: '#6b7280', fontSize: '1rem', padding: '0.5rem 0.25rem' }}>
                     ${history.reduce((sum, item) => sum + (item.opponentProfit || 0), 0).toFixed(1)}
                   </td>
                 </tr>
