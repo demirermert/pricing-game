@@ -805,7 +805,7 @@ export function InstructorDashboard({
                         onMouseEnter={() => setHoveredPair(pair.pairId)}
                         onMouseLeave={() => setHoveredPair(null)}
                       >
-                        Pair {pair.pairId}
+                        Pair {pair.pairId.toString().replace('pair-', '')}
                       </td>
                       <td style={{ fontWeight: 500, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         👤 {pair.playerA}
