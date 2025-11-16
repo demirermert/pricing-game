@@ -256,31 +256,26 @@ async function setupStudent(browser, studentNum, sessionCode) {
       return null;
     }
     
-    // Find and fill the student name input
-    const nameInput = await studentPage.$('input[placeholder*="name" i]').catch(() => null);
-    if (nameInput) {
-      await nameInput.type(`Student${studentNum}`, { delay: 0 });
-      console.log(`✅ Student ${studentNum}: Entered name`);
+    // Find and fill the first name input
+    const firstNameInput = await studentPage.$('#first-name').catch(() => null);
+    if (firstNameInput) {
+      await firstNameInput.type(`Student${studentNum}`, { delay: 0 });
+      console.log(`✅ Student ${studentNum}: Entered first name`);
     }
     
-    await delay(100);
+    await delay(50);
     
-    // Find the session code input (look for input that's not the name input)
-    const allInputs = await studentPage.$$('input[type="text"]').catch(() => []);
-    let codeInput = null;
-    
-    for (const input of allInputs) {
-      const placeholder = await input.evaluate(el => el.placeholder.toLowerCase()).catch(() => '');
-      if (placeholder.includes('code') || placeholder.includes('session')) {
-        codeInput = input;
-        break;
-      }
+    // Find and fill the last name input
+    const lastNameInput = await studentPage.$('#last-name').catch(() => null);
+    if (lastNameInput) {
+      await lastNameInput.type(`Test`, { delay: 0 });
+      console.log(`✅ Student ${studentNum}: Entered last name`);
     }
     
-    // Fallback: use the second text input if we couldn't identify by placeholder
-    if (!codeInput && allInputs.length > 1) {
-      codeInput = allInputs[1];
-    }
+    await delay(50);
+    
+    // Find the session code input
+    const codeInput = await studentPage.$('#session-code').catch(() => null);
     
     if (!codeInput) {
       const screenshot = `student-${studentNum}-screenshot.png`;
