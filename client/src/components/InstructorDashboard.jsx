@@ -773,7 +773,7 @@ export function InstructorDashboard({
                     <g key={`ylabel-${i}`}>
                       <line x1="75" y1={y} x2="80" y2={y} stroke="#9ca3af" strokeWidth="1" />
                       <line x1="80" y1={y} x2="950" y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="4,4" />
-                      <text x="70" y={y + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">
+                      <text x="72" y={y + 5} textAnchor="end" fill="#6b7280" fontSize="13" fontWeight="500">
                         ${value.toFixed(0)}
                       </text>
                     </g>
@@ -936,7 +936,7 @@ export function InstructorDashboard({
               </g>
               
               {/* Axis labels */}
-              <text x="40" y="180" textAnchor="middle" fill="#6b7280" fontSize="14" fontWeight="600" transform="rotate(-90, 40, 180)">
+              <text x="30" y="180" textAnchor="middle" fill="#6b7280" fontSize="14" fontWeight="600" transform="rotate(-90, 30, 180)">
                 Profit ($)
               </text>
               <text x="515" y="385" textAnchor="middle" fill="#6b7280" fontSize="14" fontWeight="600">

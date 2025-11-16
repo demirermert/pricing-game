@@ -14,6 +14,9 @@ function buildApiUrl(path) {
 const DEFAULT_CONFIG = {
   rounds: 2,
   roundTime: 10,
+  breakTime: 10,
+  differentTimePerRound: false,
+  roundTimes: [],
   marketSize: 100,
   alpha: 1,
   sigma: 5,
@@ -70,7 +73,10 @@ export default function InstructorPage() {
         sessionName: sessionName.trim() || `${instructorName}'s Game`,
         config: {
           rounds: Number(instructorConfig.rounds),
-          roundTime: Number(instructorConfig.roundTime),
+          roundTime: instructorConfig.differentTimePerRound 
+            ? instructorConfig.roundTimes.map(t => Number(t))
+            : Number(instructorConfig.roundTime),
+          breakTime: Number(instructorConfig.breakTime),
           marketSize: Number(instructorConfig.marketSize),
           alpha: Number(instructorConfig.alpha),
           sigma: Number(instructorConfig.sigma),
@@ -248,9 +254,6 @@ export default function InstructorPage() {
                   onChange={event => setSessionName(event.target.value)}
                   placeholder={`e.g., "MBA Section A" or "Spring 2025"`}
                 />
-                <small style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Give your session a memorable name (students will use the code to join)
-                </small>
               </div>
               <div className="input-row">
                 <label>Rounds</label>
@@ -258,16 +261,98 @@ export default function InstructorPage() {
                   type="number"
                   min="1"
                   value={instructorConfig.rounds}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, rounds: event.target.value }))}
+                  onChange={event => {
+                    const newRounds = event.target.value;
+                    setInstructorConfig(cfg => {
+                      // If different time per round is enabled, adjust the array
+                      if (cfg.differentTimePerRound) {
+                        const newRoundTimes = Array(Number(newRounds)).fill(0).map((_, i) => 
+                          cfg.roundTimes[i] || cfg.roundTime
+                        );
+                        return { ...cfg, rounds: newRounds, roundTimes: newRoundTimes };
+                      }
+                      return { ...cfg, rounds: newRounds };
+                    });
+                  }}
                 />
               </div>
+              
               <div className="input-row">
-                <label>Seconds per round</label>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={instructorConfig.differentTimePerRound}
+                    onChange={event => {
+                      const checked = event.target.checked;
+                      setInstructorConfig(cfg => {
+                        // Initialize roundTimes array when enabling
+                        const roundTimes = checked 
+                          ? Array(Number(cfg.rounds)).fill(cfg.roundTime)
+                          : [];
+                        return { ...cfg, differentTimePerRound: checked, roundTimes };
+                      });
+                    }}
+                    style={{ width: 'auto', cursor: 'pointer' }}
+                  />
+                  <span>Set different time for each round</span>
+                </label>
+              </div>
+              
+              {!instructorConfig.differentTimePerRound && (
+                <div className="input-row">
+                  <label>Seconds per round</label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={instructorConfig.roundTime}
+                    onChange={event => setInstructorConfig(cfg => ({ ...cfg, roundTime: event.target.value }))}
+                  />
+                </div>
+              )}
+              
+              {instructorConfig.differentTimePerRound && (
+                <div className="input-row">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.5rem' }}>
+                    {Array.from({ length: Number(instructorConfig.rounds) }).map((_, i) => {
+                      // Get the value, defaulting to roundTime only if undefined
+                      const currentValue = instructorConfig.roundTimes[i] !== undefined 
+                        ? instructorConfig.roundTimes[i] 
+                        : instructorConfig.roundTime;
+                      
+                      return (
+                        <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <label style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>
+                            Round {i + 1}
+                          </label>
+                          <input
+                            type="number"
+                            min="10"
+                            value={currentValue}
+                            onChange={event => {
+                              const newRoundTimes = [...(instructorConfig.roundTimes || [])];
+                              // Ensure array is large enough
+                              while (newRoundTimes.length <= i) {
+                                newRoundTimes.push(instructorConfig.roundTime);
+                              }
+                              newRoundTimes[i] = event.target.value;
+                              setInstructorConfig(cfg => ({ ...cfg, roundTimes: newRoundTimes }));
+                            }}
+                            style={{ padding: '0.5rem', fontSize: '0.875rem' }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
+              <div className="input-row">
+                <label>Break between rounds (seconds)</label>
                 <input
                   type="number"
-                  min="10"
-                  value={instructorConfig.roundTime}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, roundTime: event.target.value }))}
+                  min="0"
+                  value={instructorConfig.breakTime}
+                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, breakTime: event.target.value }))}
                 />
               </div>
               <div className="input-row">

@@ -415,10 +415,15 @@ export function createGameManager(io) {
     session.roundFinalizing = false; // Reset flag for new round
     session.roundStartTime = Date.now(); // Record when this round started
     
+    // Get round time for this specific round (support array or single value)
+    const roundTime = Array.isArray(session.config.roundTime)
+      ? session.config.roundTime[session.currentRound - 1] || session.config.roundTime[0]
+      : session.config.roundTime;
+    
     // Send round started to all players
     io.to(session.code).emit('roundStarted', {
       round: session.currentRound,
-      roundTime: session.config.roundTime
+      roundTime: roundTime
     });
     
     // If showOpponentName is enabled, send each student their opponent's name
@@ -441,7 +446,7 @@ export function createGameManager(io) {
       try {
         const now = Date.now();
         const elapsed = (now - session.roundStartTime) / 1000;
-        const remaining = Math.max(0, Math.ceil(session.config.roundTime - elapsed));
+        const remaining = Math.max(0, Math.ceil(roundTime - elapsed));
         
         // Only broadcast if value changed or enough time passed
         if (remaining !== session.lastBroadcastRemaining || (now - lastBroadcastTime) >= 900) {
@@ -470,7 +475,7 @@ export function createGameManager(io) {
         session.timers.timerBroadcast = null;
       }
       forceSubmitMissing(session);
-    }, session.config.roundTime * 1000);
+    }, roundTime * 1000);
   }
 
   async function forceSubmitMissing(session) {
@@ -699,7 +704,9 @@ export function createGameManager(io) {
     }
     
     // Start countdown timer for next round
-    let countdown = session.config.resultRevealTime;
+    // Use breakTime if provided, otherwise fall back to resultRevealTime
+    const breakTime = session.config.breakTime ?? session.config.resultRevealTime;
+    let countdown = breakTime;
     io.to(session.code).emit('nextRoundCountdown', { countdown });
     
     const countdownInterval = setInterval(() => {
@@ -714,7 +721,7 @@ export function createGameManager(io) {
     session.timers.reveal = setTimeout(() => {
       clearInterval(countdownInterval);
       startNextRound(session);
-    }, session.config.resultRevealTime * 1000);
+    }, breakTime * 1000);
   }
 
   function formatPlayerPayload(player, latestResult) {

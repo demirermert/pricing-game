@@ -538,7 +538,7 @@ export function StudentView({
               margin: '0.5rem 0 0 0',
               color: '#1f2937'
             }}>
-              Round Results
+              Previous Round Results
             </h2>
           </div>
 
