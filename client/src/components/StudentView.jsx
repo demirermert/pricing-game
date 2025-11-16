@@ -363,7 +363,7 @@ export function StudentView({
         </div>
       )}
 
-      {sessionStatus !== 'lobby' && (
+      {sessionStatus !== 'lobby' && sessionStatus !== 'complete' && (
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
