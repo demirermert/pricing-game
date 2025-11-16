@@ -717,20 +717,21 @@ export function InstructorDashboard({
         <div style={{ marginTop: '2rem' }}>
           <h3 style={{ margin: '0 0 1rem 0' }}>💰 Total Profit by Pair</h3>
           <div style={{
+            maxHeight: '500px',
+            overflowY: 'auto',
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
             backgroundColor: 'white',
-            overflow: 'visible',
             position: 'relative'
           }}>
-            <table className="table" style={{ overflow: 'visible' }}>
-              <thead>
+            <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 1 }}>
                 <tr>
-                  <th style={{ textAlign: 'center' }}>Rank</th>
-                  <th style={{ textAlign: 'center' }}>Pair</th>
-                  <th>Player A</th>
-                  <th>Player B</th>
-                  <th style={{ textAlign: 'right' }}>Total Profit</th>
+                  <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Rank</th>
+                  <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Pair</th>
+                  <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player A</th>
+                  <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player B</th>
+                  <th style={{ textAlign: 'right', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Total Profit</th>
                 </tr>
               </thead>
               <tbody>
@@ -750,7 +751,7 @@ export function InstructorDashboard({
                         position: 'relative'
                       }}
                     >
-                      <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor }}>
+                      <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                       </td>
                       <td 
@@ -760,20 +761,21 @@ export function InstructorDashboard({
                           fontSize: '1rem',
                           cursor: 'pointer',
                           padding: '0.75rem',
-                          transition: 'background-color 0.2s'
+                          transition: 'background-color 0.2s',
+                          borderBottom: '1px solid #e5e7eb'
                         }}
                         onMouseEnter={() => setHoveredPair(pair.pairId)}
                         onMouseLeave={() => setHoveredPair(null)}
                       >
                         Pair {pair.pairId}
                       </td>
-                      <td style={{ fontWeight: 500 }}>
+                      <td style={{ fontWeight: 500, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         👤 {pair.playerA}
                       </td>
-                      <td style={{ fontWeight: 500 }}>
+                      <td style={{ fontWeight: 500, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         👤 {pair.playerB}
                       </td>
-                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981', position: 'relative' }}>
+                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '1.1rem', color: '#10b981', padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
                         ${pair.totalProfit.toFixed(2)}
                       </td>
                     </tr>
