@@ -35,9 +35,17 @@ export function InstructorDashboard({
   const [hoveredPlayerPoint, setHoveredPlayerPoint] = React.useState(null);
   const [hoveredPair, setHoveredPair] = React.useState(null);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [studentSearchQuery, setStudentSearchQuery] = React.useState('');
+  const [pairSearchQuery, setPairSearchQuery] = React.useState('');
   
   // Filter out instructors from player list - show students and AI players
   const players = (session?.players || []).filter(player => player.role === 'student' || player.role === 'ai');
+  
+  // Filter students based on search query
+  const filteredPlayers = players.filter(player =>
+    player.name.toLowerCase().includes(studentSearchQuery.toLowerCase()) ||
+    (player.pairId && player.pairId.toLowerCase().includes(studentSearchQuery.toLowerCase()))
+  );
   
   // Filter leaderboard based on search query
   const filteredLeaderboard = leaderboard && leaderboard.length > 0
@@ -229,6 +237,13 @@ export function InstructorDashboard({
   const pairProfits = calculatePairProfits();
   const individualProfits = calculateIndividualProfits();
   
+  // Filter pair profits based on search query
+  const filteredPairProfits = pairProfits.filter(pair =>
+    pair.playerA.toLowerCase().includes(pairSearchQuery.toLowerCase()) ||
+    pair.playerB.toLowerCase().includes(pairSearchQuery.toLowerCase()) ||
+    pair.pairId.toLowerCase().includes(pairSearchQuery.toLowerCase())
+  );
+  
   return (
     <div className="card">
       {/* Header */}
@@ -397,6 +412,28 @@ export function InstructorDashboard({
         {/* Left Column - Students List */}
         <div>
           <h3 style={{ margin: '0 0 1rem 0' }}>Students ({players.length})</h3>
+          
+          {/* Search Box */}
+          <div style={{ marginBottom: '0.75rem' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search students..."
+              value={studentSearchQuery}
+              onChange={(e) => setStudentSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+          
           <div style={{
             maxHeight: '400px',
             overflowY: 'auto',
@@ -404,9 +441,11 @@ export function InstructorDashboard({
             borderRadius: '8px',
             backgroundColor: '#f9fafb'
           }}>
-            {players.length === 0 ? (
+            {filteredPlayers.length === 0 ? (
               <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280', margin: 0 }}>
-                No students have joined yet.
+                {studentSearchQuery 
+                  ? `No students found matching "${studentSearchQuery}"`
+                  : 'No students have joined yet.'}
               </p>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -419,7 +458,7 @@ export function InstructorDashboard({
                   </tr>
                 </thead>
                 <tbody>
-                  {players.map((player, index) => (
+                  {filteredPlayers.map((player, index) => (
                     <tr key={player.socketId} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb' }}>
                       <td style={{ padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>{index + 1}</td>
                       <td style={{ padding: '0.75rem', fontWeight: 500, borderBottom: '1px solid #e5e7eb' }}>
@@ -754,6 +793,28 @@ export function InstructorDashboard({
       {pairProfits.length > 0 && (
         <div style={{ marginTop: '2rem' }}>
           <h3 style={{ margin: '0 0 1rem 0' }}>💰 Total Profit by Pair</h3>
+          
+          {/* Search Box */}
+          <div style={{ marginBottom: '0.75rem' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search pairs..."
+              value={pairSearchQuery}
+              onChange={(e) => setPairSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+          
           <div style={{
             maxHeight: '500px',
             overflowY: 'auto',
@@ -762,23 +823,33 @@ export function InstructorDashboard({
             backgroundColor: 'white',
             position: 'relative'
           }}>
-            <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 1 }}>
-                <tr>
-                  <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Rank</th>
-                  <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Pair</th>
-                  <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player A</th>
-                  <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player B</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Total Profit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pairProfits.map((pair, index) => {
-                  const colors = ['#fef3c7', '#e0e7ff', '#fed7aa', 'white'];
-                  const rankColors = ['#f59e0b', '#6366f1', '#f97316', '#6b7280'];
-                  const backgroundColor = index < 3 ? colors[index] : colors[3];
-                  const rankColor = index < 3 ? rankColors[index] : rankColors[3];
-                  const isHovered = hoveredPair === pair.pairId;
+            {filteredPairProfits.length === 0 ? (
+              <p style={{ padding: '2rem', textAlign: 'center', color: '#6b7280', margin: 0 }}>
+                {pairSearchQuery 
+                  ? `No pairs found matching "${pairSearchQuery}"`
+                  : 'No pair data available'}
+              </p>
+            ) : (
+              <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 1 }}>
+                  <tr>
+                    <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Rank</th>
+                    <th style={{ textAlign: 'center', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Pair</th>
+                    <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player A</th>
+                    <th style={{ padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Player B</th>
+                    <th style={{ textAlign: 'right', padding: '0.75rem', borderBottom: '2px solid #d1d5db' }}>Total Profit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPairProfits.map((pair, index) => {
+                    // Find original rank in the full pairProfits array
+                    const originalRank = pairProfits.findIndex(p => p.pairId === pair.pairId) + 1;
+                    const isTopThree = originalRank <= 3;
+                    const colors = ['#fef3c7', '#e0e7ff', '#fed7aa', 'white'];
+                    const rankColors = ['#f59e0b', '#6366f1', '#f97316', '#6b7280'];
+                    const backgroundColor = isTopThree ? colors[originalRank - 1] : colors[3];
+                    const rankColor = isTopThree ? rankColors[originalRank - 1] : rankColors[3];
+                    const isHovered = hoveredPair === pair.pairId;
                   
                   return (
                     <tr 
@@ -790,7 +861,7 @@ export function InstructorDashboard({
                       }}
                     >
                       <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '1.2rem', color: rankColor, padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        {originalRank === 1 ? '🥇' : originalRank === 2 ? '🥈' : originalRank === 3 ? '🥉' : originalRank}
                       </td>
                       <td 
                         style={{ 
@@ -821,6 +892,7 @@ export function InstructorDashboard({
                 })}
               </tbody>
             </table>
+            )}
           </div>
         </div>
       )}
