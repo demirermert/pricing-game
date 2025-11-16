@@ -552,7 +552,29 @@ export default function SessionPage() {
       );
     }
     
-    // Otherwise show student join form
+    // Otherwise show student join form or loading if auto-rejoining
+    // Show loading screen if already attempting to join (auto-rejoin)
+    if (isJoining) {
+      return (
+        <div className="app-shell">
+          <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+            <div style={{ 
+              fontSize: '3rem',
+              marginBottom: '1rem',
+              animation: 'pulse 1.5s ease-in-out infinite'
+            }}>
+              🎮
+            </div>
+            <h2 style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
+              {studentCodeFromUrl ? 'Rejoining Session...' : 'Joining Session...'}
+            </h2>
+            <p style={{ color: '#9ca3af' }}>Please wait a moment</p>
+          </div>
+        </div>
+      );
+    }
+    
+    // Show join form only if not auto-rejoining
     return (
       <div className="app-shell">
         <div className="card">
