@@ -50,63 +50,29 @@ export default function StudentPage() {
   };
 
   const renderStudentJoin = () => (
-    <div className="card" style={{ position: 'relative' }}>
-      {/* Left Logo - Top Left Corner */}
-      <img 
-        src="/course-logo.png" 
-        alt="Course Logo"
-        style={{ 
-          position: 'absolute',
-          top: '0.5rem',
-          left: '0.5rem',
-          width: '140px',
-          height: 'auto',
-          opacity: 0.9
-        }}
-      />
-      
-      {/* MIT Sloan Logo - Top Right Corner */}
-      <img 
-        src="/sloan-logo.png" 
-        alt="MIT Sloan School of Management"
-        style={{ 
-          position: 'absolute',
-          top: '1.5rem',
-          right: '0.5rem',
-          width: '140px',
-          height: 'auto',
-          opacity: 0.9
-        }}
-      />
-
-      {/* Header */}
-      <div style={{ 
-        textAlign: 'center',
-        marginTop: '4rem',
-        marginBottom: '2rem',
-        paddingBottom: '1.5rem',
-        borderBottom: '2px solid #e5e7eb'
-      }}>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: 700,
-          color: '#1f2937',
-          marginBottom: '0.5rem',
-          marginTop: 0
-        }}>
-          Welcome to 15.010
-        </h1>
-        <p style={{ 
-          fontSize: '1rem',
-          color: '#6b7280',
-          margin: 0
-        }}>
-          Economic Analysis of Business Decisions
-        </p>
+    <div className="card student-join-card">
+      {/* Logos Container - Responsive */}
+      <div className="logos-container">
+        <img 
+          src="/course-logo.png" 
+          alt="Course Logo"
+          className="logo-left"
+        />
+        <img 
+          src="/sloan-logo.png" 
+          alt="MIT Sloan School of Management"
+          className="logo-right"
+        />
       </div>
 
-      <form onSubmit={handleJoinSession} style={{ display: 'grid', gap: '1rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+      {/* Header */}
+      <div className="student-header">
+        <h1>Welcome to 15.010</h1>
+        <p>Economic Analysis of Business Decisions</p>
+      </div>
+
+      <form onSubmit={handleJoinSession} className="student-form">
+        <div className="name-inputs">
           <div className="input-row">
             <label htmlFor="first-name">First name</label>
             <input
@@ -140,7 +106,7 @@ export default function StudentPage() {
           Join session
         </button>
       </form>
-      {errorMessage && <p style={{ color: '#dc2626' }}>{errorMessage}</p>}
+      {errorMessage && <p style={{ color: '#dc2626', marginTop: '1rem' }}>{errorMessage}</p>}
     </div>
   );
 
