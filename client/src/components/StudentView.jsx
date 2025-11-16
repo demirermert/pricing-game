@@ -629,7 +629,7 @@ export function StudentView({
                   fontWeight: 700,
                   color: '#1f2937'
                 }}>
-                  ${latestResult.price.toFixed(2)}
+                  ${Number.isInteger(latestResult.price) ? latestResult.price : latestResult.price.toFixed(2)}
                 </div>
               </div>
 
@@ -703,7 +703,9 @@ export function StudentView({
                   fontWeight: 700,
                   color: '#1f2937'
                 }}>
-                  ${(latestResult.opponentPrice !== undefined && latestResult.opponentPrice !== null) ? latestResult.opponentPrice.toFixed(2) : '-'}
+                  ${(latestResult.opponentPrice !== undefined && latestResult.opponentPrice !== null) 
+                    ? (Number.isInteger(latestResult.opponentPrice) ? latestResult.opponentPrice : latestResult.opponentPrice.toFixed(2))
+                    : '-'}
                 </div>
               </div>
 
