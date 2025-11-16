@@ -956,6 +956,7 @@ async function main() {
     console.log(`\n🎮 Game session ready with ${NUM_STUDENTS} students`);
     if (AUTO_SUBMIT) {
       console.log('🤖 Auto-submit is ENABLED - students will submit automatically');
+      console.log('📊 Monitoring session for completion...');
     } else {
       console.log('💡 Tip: Use -a or --auto flag to enable auto-submit for students');
       console.log('💡 Example: npm run test-game -- -m -a 6 (manual config, 6 students with auto-submit)');
@@ -970,6 +971,175 @@ async function main() {
       await browser.close();
       process.exit(0);
     });
+    
+    // Monitor for session completion and generate report
+    if (AUTO_SUBMIT) {
+      console.log('⏳ Waiting for game to complete...\n');
+      
+      let sessionComplete = false;
+      let checkAttempts = 0;
+      const maxCheckAttempts = 3600; // Check for up to 1 hour (at 5 second intervals)
+      
+      while (!sessionComplete && checkAttempts < maxCheckAttempts) {
+        await delay(5000); // Check every 5 seconds
+        checkAttempts++;
+        
+        // Check if session is complete
+        sessionComplete = await instructorPage.evaluate(() => {
+          // Look for "COMPLETE" status
+          const statusTags = Array.from(document.querySelectorAll('.status-tag, [class*="status"]'));
+          for (const tag of statusTags) {
+            if (tag.textContent.trim().toUpperCase() === 'COMPLETE') {
+              return true;
+            }
+          }
+          
+          // Also look for completion message or indicator
+          const bodyText = document.body.textContent;
+          if (bodyText.includes('Session Complete') || bodyText.includes('Game Over')) {
+            return true;
+          }
+          
+          return false;
+        }).catch(() => false);
+        
+        if (sessionComplete) {
+          console.log('\n' + '='.repeat(70));
+          console.log('🎉 SESSION COMPLETED! Generating report...');
+          console.log('='.repeat(70) + '\n');
+          
+          // Wait a moment for all data to be rendered
+          await delay(2000);
+          
+          // Extract final game data from instructor page
+          const gameReport = await instructorPage.evaluate(() => {
+            const report = {
+              sessionCode: null,
+              totalRounds: 0,
+              players: [],
+              pairs: [],
+              averagePrices: [],
+              modelInfo: null
+            };
+            
+            // Get session code
+            const urlMatch = window.location.pathname.match(/\/manage\/([A-Z0-9]{4})/);
+            if (urlMatch) {
+              report.sessionCode = urlMatch[1];
+            }
+            
+            // Get model info from parameter display
+            const paramDivs = Array.from(document.querySelectorAll('div'));
+            for (const div of paramDivs) {
+              const text = div.textContent;
+              if (text.includes('Hotelling Model')) {
+                report.modelInfo = text.trim();
+              } else if (text.includes('Logit Model')) {
+                report.modelInfo = text.trim();
+              }
+            }
+            
+            // Get leaderboard data (top 10)
+            const leaderboardRows = Array.from(document.querySelectorAll('table tbody tr'));
+            leaderboardRows.forEach((row, index) => {
+              const cells = row.querySelectorAll('td');
+              if (cells.length >= 2) {
+                const name = cells[0]?.textContent.trim();
+                const profit = cells[1]?.textContent.trim();
+                if (name && profit) {
+                  report.players.push({
+                    rank: index + 1,
+                    name,
+                    totalProfit: profit
+                  });
+                }
+              }
+            });
+            
+            // Get pair profits (from "Total Profit by Pair" table)
+            const allTables = Array.from(document.querySelectorAll('table'));
+            for (const table of allTables) {
+              const headers = Array.from(table.querySelectorAll('th'));
+              const hasPairColumn = headers.some(h => h.textContent.includes('Pair'));
+              
+              if (hasPairColumn) {
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                rows.forEach(row => {
+                  const cells = row.querySelectorAll('td');
+                  if (cells.length >= 4) {
+                    report.pairs.push({
+                      pairId: cells[0]?.textContent.trim(),
+                      playerA: cells[1]?.textContent.trim(),
+                      playerB: cells[2]?.textContent.trim(),
+                      totalProfit: cells[3]?.textContent.trim()
+                    });
+                  }
+                });
+                break;
+              }
+            }
+            
+            // Try to detect number of rounds
+            const roundTexts = document.body.textContent.match(/Round \d+ of (\d+)/);
+            if (roundTexts) {
+              report.totalRounds = parseInt(roundTexts[1]);
+            }
+            
+            return report;
+          }).catch(() => null);
+          
+          // Generate and display report
+          console.log('📋 GAME REPORT');
+          console.log('='.repeat(70));
+          
+          if (gameReport) {
+            if (gameReport.sessionCode) {
+              console.log(`Session Code: ${gameReport.sessionCode}`);
+            }
+            if (gameReport.totalRounds) {
+              console.log(`Total Rounds: ${gameReport.totalRounds}`);
+            }
+            if (gameReport.modelInfo) {
+              console.log(`Model: ${gameReport.modelInfo}`);
+            }
+            console.log(`Participants: ${NUM_STUDENTS} students`);
+            console.log();
+            
+            // Top performers
+            if (gameReport.players.length > 0) {
+              console.log('🏆 TOP PERFORMERS:');
+              console.log('-'.repeat(70));
+              gameReport.players.slice(0, 10).forEach(player => {
+                const medal = player.rank === 1 ? '🥇' : player.rank === 2 ? '🥈' : player.rank === 3 ? '🥉' : '  ';
+                console.log(`${medal} ${player.rank}. ${player.name.padEnd(30)} ${player.totalProfit}`);
+              });
+              console.log();
+            }
+            
+            // Pair performance
+            if (gameReport.pairs.length > 0) {
+              console.log('👥 PAIR PERFORMANCE:');
+              console.log('-'.repeat(70));
+              gameReport.pairs.forEach(pair => {
+                console.log(`${pair.pairId}: ${pair.playerA} & ${pair.playerB}`);
+                console.log(`   Total Profit: ${pair.totalProfit}`);
+              });
+              console.log();
+            }
+          }
+          
+          console.log('='.repeat(70));
+          console.log('✅ Report complete!');
+          console.log('💡 Press Ctrl+C to close browser and exit\n');
+          
+          break; // Exit monitoring loop
+        }
+      }
+      
+      if (!sessionComplete && checkAttempts >= maxCheckAttempts) {
+        console.log('⚠️  Stopped monitoring - timeout reached (1 hour)');
+      }
+    }
     
     // Keep the script running
     await new Promise(() => {});
