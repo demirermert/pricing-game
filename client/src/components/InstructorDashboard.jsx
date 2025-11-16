@@ -1206,14 +1206,148 @@ export function InstructorDashboard({
             padding: '1.5rem',
             boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)',
             zIndex: 999999,
-            minWidth: '400px',
-            maxWidth: '600px',
+            minWidth: '500px',
+            maxWidth: '700px',
             pointerEvents: 'none'
           }}>
             <div style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: '0.9rem', color: '#374151' }}>
-              💰 Price History
+              💰 Price History - {pair.playerA} & {pair.playerB}
             </div>
             
+            {/* Price Chart */}
+            <div style={{ marginBottom: '1rem' }}>
+              <svg width="100%" height="200" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet">
+                {/* Axes */}
+                <line x1="50" y1="20" x2="50" y2="160" stroke="#d1d5db" strokeWidth="2" />
+                <line x1="50" y1="160" x2="470" y2="160" stroke="#d1d5db" strokeWidth="2" />
+                
+                {/* Calculate scales */}
+                {(() => {
+                  const allPrices = [...pair.priceHistoryA, ...pair.priceHistoryB];
+                  const minPrice = Math.min(...allPrices);
+                  const maxPrice = Math.max(...allPrices);
+                  const priceRange = maxPrice - minPrice || 1;
+                  const numRounds = pair.priceHistoryA.length;
+                  const chartWidth = 420;
+                  const spacing = chartWidth / Math.max(numRounds - 1, 1);
+                  
+                  return (
+                    <>
+                      {/* Y-axis labels */}
+                      {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
+                        const value = minPrice + priceRange * ratio;
+                        const y = 160 - (ratio * 140);
+                        return (
+                          <g key={ratio}>
+                            <line x1="45" y1={y} x2="50" y2={y} stroke="#9ca3af" strokeWidth="1" />
+                            <text x="42" y={y + 3} textAnchor="end" fill="#6b7280" fontSize="10">
+                              ${value.toFixed(0)}
+                            </text>
+                          </g>
+                        );
+                      })}
+                      
+                      {/* X-axis labels (rounds) */}
+                      {pair.priceHistoryA.map((_, i) => {
+                        const x = 50 + (i * spacing);
+                        return (
+                          <g key={i}>
+                            <line x1={x} y1="160" x2={x} y2="165" stroke="#9ca3af" strokeWidth="1" />
+                            <text x={x} y="177" textAnchor="middle" fill="#6b7280" fontSize="10">
+                              R{i + 1}
+                            </text>
+                          </g>
+                        );
+                      })}
+                      
+                      {/* Player A line (blue) */}
+                      {pair.priceHistoryA.map((price, i) => {
+                        if (i === 0) return null;
+                        const x1 = 50 + ((i - 1) * spacing);
+                        const y1 = 160 - ((pair.priceHistoryA[i - 1] - minPrice) / priceRange) * 140;
+                        const x2 = 50 + (i * spacing);
+                        const y2 = 160 - ((price - minPrice) / priceRange) * 140;
+                        return (
+                          <line
+                            key={`a-${i}`}
+                            x1={x1}
+                            y1={y1}
+                            x2={x2}
+                            y2={y2}
+                            stroke="#3b82f6"
+                            strokeWidth="3"
+                          />
+                        );
+                      })}
+                      
+                      {/* Player A points */}
+                      {pair.priceHistoryA.map((price, i) => {
+                        const x = 50 + (i * spacing);
+                        const y = 160 - ((price - minPrice) / priceRange) * 140;
+                        return (
+                          <circle
+                            key={`a-point-${i}`}
+                            cx={x}
+                            cy={y}
+                            r="4"
+                            fill="#3b82f6"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
+                        );
+                      })}
+                      
+                      {/* Player B line (orange) */}
+                      {pair.priceHistoryB.map((price, i) => {
+                        if (i === 0) return null;
+                        const x1 = 50 + ((i - 1) * spacing);
+                        const y1 = 160 - ((pair.priceHistoryB[i - 1] - minPrice) / priceRange) * 140;
+                        const x2 = 50 + (i * spacing);
+                        const y2 = 160 - ((price - minPrice) / priceRange) * 140;
+                        return (
+                          <line
+                            key={`b-${i}`}
+                            x1={x1}
+                            y1={y1}
+                            x2={x2}
+                            y2={y2}
+                            stroke="#f97316"
+                            strokeWidth="3"
+                          />
+                        );
+                      })}
+                      
+                      {/* Player B points */}
+                      {pair.priceHistoryB.map((price, i) => {
+                        const x = 50 + (i * spacing);
+                        const y = 160 - ((price - minPrice) / priceRange) * 140;
+                        return (
+                          <circle
+                            key={`b-point-${i}`}
+                            cx={x}
+                            cy={y}
+                            r="4"
+                            fill="#f97316"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
+                        );
+                      })}
+                      
+                      {/* Legend */}
+                      <g transform="translate(330, 10)">
+                        <circle cx="5" cy="0" r="4" fill="#3b82f6" stroke="white" strokeWidth="1" />
+                        <text x="12" y="3" fill="#1e40af" fontSize="10" fontWeight="600">{pair.playerA.split(' ')[1] || 'A'}</text>
+                        <circle cx="5" cy="15" r="4" fill="#f97316" stroke="white" strokeWidth="1" />
+                        <text x="12" y="18" fill="#92400e" fontSize="10" fontWeight="600">{pair.playerB.split(' ')[1] || 'B'}</text>
+                      </g>
+                    </>
+                  );
+                })()}
+              </svg>
+            </div>
+            
+            {/* Price Table */}
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
@@ -1265,7 +1399,7 @@ export function InstructorDashboard({
                     </td>
                   ))}
                 </tr>
-                <tr style={{ backgroundColor: '#fef3c7' }}>
+                <tr style={{ backgroundColor: '#fed7aa' }}>
                   <td style={{
                     padding: '0.5rem',
                     fontWeight: 600,
