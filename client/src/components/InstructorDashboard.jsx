@@ -655,9 +655,10 @@ export function InstructorDashboard({
             border: '2px solid #e5e7eb',
             borderRadius: '8px',
             backgroundColor: 'white',
-            overflow: 'hidden'
+            overflow: 'visible',
+            position: 'relative'
           }}>
-            <table className="table">
+            <table className="table" style={{ overflow: 'visible' }}>
               <thead>
                 <tr>
                   <th style={{ textAlign: 'center' }}>Rank</th>
