@@ -202,14 +202,16 @@ export default function SessionPage() {
         const next = new Map(prev);
         payload.results.forEach(result => {
           [result.playerA, result.playerB].forEach(entry => {
-            const current = next.get(entry.socketId) || {
+            // Use player name as key instead of socketId to handle reconnections
+            const playerKey = entry.name || entry.socketId;
+            const current = next.get(playerKey) || {
               socketId: entry.socketId,
               name: entry.name || entry.socketId,
               totalProfit: 0
             };
             current.name = entry.name || current.name;
             current.totalProfit += entry.profit;
-            next.set(entry.socketId, current);
+            next.set(playerKey, current);
           });
         });
         return next;
