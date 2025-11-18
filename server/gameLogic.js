@@ -537,9 +537,12 @@ export function createGameManager(io) {
     console.log(`[Session ${session.code}] Round ${session.currentRound} timer expired - finalizing round`);
     const seenPairs = new Set();
     
-    // Function to generate random price for non-submissions (0-20 range)
+    // Function to generate random price for non-submissions
+    // Use the game's price bounds (0 to max, which is typically 2x monopoly price)
     const getRandomPrice = () => {
-      return Math.random() * 20; // Random price between 0 and 20
+      const min = session.config.priceBounds?.min || 0;
+      const max = session.config.priceBounds?.max || 100;
+      return min + Math.random() * (max - min);
     };
       
     // Process all pairs sequentially to get AI decisions

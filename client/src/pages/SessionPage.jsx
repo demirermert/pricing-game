@@ -186,7 +186,18 @@ export default function SessionPage() {
     
     const handleRoundSummary = payload => {
       setLatestRoundSummary(payload);
-      setAllRoundSummaries(prev => [...prev, payload]);
+      setAllRoundSummaries(prev => {
+        // Check if this round already exists to prevent duplicates
+        const existingIndex = prev.findIndex(r => r.round === payload.round);
+        if (existingIndex >= 0) {
+          // Round already exists, replace it
+          const updated = [...prev];
+          updated[existingIndex] = payload;
+          return updated;
+        }
+        // New round, append it
+        return [...prev, payload];
+      });
       setLeaderboardData(prev => {
         const next = new Map(prev);
         payload.results.forEach(result => {
