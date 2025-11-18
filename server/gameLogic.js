@@ -22,7 +22,7 @@ const STATUS = {
 };
 
 function randomCode() {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Only letters, no numbers
   let result = '';
   for (let i = 0; i < SESSION_CODE_LENGTH; i += 1) {
     result += alphabet[Math.floor(Math.random() * alphabet.length)];
