@@ -70,9 +70,8 @@ export function InstructorDashboard({
   };
   
   const handleBackToSessions = () => {
-    // Navigate back to the instructor's profile page
-    const instructorPath = `/instructor/${instructorName.toLowerCase()}`;
-    navigate(instructorPath);
+    // Navigate back to instructor page
+    navigate('/instructor');
   };
 
   // Calculate average price and SD per round from all rounds data
