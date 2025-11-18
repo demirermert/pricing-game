@@ -530,8 +530,8 @@ export function InstructorDashboard({
             {filteredLeaderboard.length > 0 ? (
               <div>
                 {filteredLeaderboard.map((player, index) => {
-                  // Find the original rank in the full leaderboard
-                  const originalRank = leaderboard.findIndex(p => p.socketId === player.socketId) + 1;
+                  // Find the original rank in the full leaderboard by comparing names
+                  const originalRank = leaderboard.findIndex(p => p.name === player.name) + 1;
                   const isTopThree = originalRank <= 3;
                   
                   return (
