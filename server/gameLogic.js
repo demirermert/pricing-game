@@ -323,6 +323,9 @@ export function createGameManager(io) {
             profit: latestHistory.profit,
             share: latestHistory.share,
             opponentPrice: latestHistory.opponentPrice,
+            opponentDemand: latestHistory.opponentDemand,
+            opponentShare: latestHistory.opponentShare,
+            opponentProfit: latestHistory.opponentProfit,
             opponentName: latestHistory.opponentName,
             history: player.history
           });
