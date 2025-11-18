@@ -175,11 +175,25 @@ export function createGameManager(io) {
         }
         
         // Update existing player's socket and connection status
-        session.players.delete(existingPlayer.socketId);
+        const oldSocketId = existingPlayer.socketId;
+        session.players.delete(oldSocketId);
         existingPlayer.socketId = socket.id;
         existingPlayer.connected = true;
         existingPlayer.lastHeartbeat = Date.now(); // Reset heartbeat on reconnect
         session.players.set(socket.id, existingPlayer);
+        
+        // Update the pair's socketId references if player was already paired
+        if (existingPlayer.pairId) {
+          const pair = session.pairs.find(p => p.id === existingPlayer.pairId);
+          if (pair) {
+            if (pair.playerA === oldSocketId) {
+              pair.playerA = socket.id;
+            } else if (pair.playerB === oldSocketId) {
+              pair.playerB = socket.id;
+            }
+          }
+        }
+        
         socket.join(session.code);
         socket.data.sessionCode = session.code;
         socket.data.role = existingPlayer.role;
