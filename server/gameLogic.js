@@ -622,7 +622,20 @@ export function createGameManager(io) {
 
   function recordSubmission(session, socketId, price, forced) {
     const player = session.players.get(socketId);
-    if (!player) return;
+    if (!player) {
+      // Player socket not found - might be disconnected
+      // Try to find the player's pairId from session.pairs
+      const pair = session.pairs.find(p => p.playerA === socketId || p.playerB === socketId);
+      if (pair) {
+        const submission = session.submissions.get(pair.id) || {};
+        submission[socketId] = { price, forced };
+        session.submissions.set(pair.id, submission);
+        console.log(`[Session ${session.code}] Recorded submission for disconnected player ${socketId} in pair ${pair.id}`);
+      } else {
+        console.warn(`[Session ${session.code}] Cannot record submission - player ${socketId} not found in any pair`);
+      }
+      return;
+    }
     const pairId = player.pairId;
     if (!pairId) return;
     const submission = session.submissions.get(pairId) || {};
@@ -664,10 +677,40 @@ export function createGameManager(io) {
     
     session.pairs.forEach(pair => {
       const submission = session.submissions.get(pair.id);
-      if (!submission) return;
-      const playerA = session.players.get(pair.playerA);
-      const playerB = session.players.get(pair.playerB);
-      if (!playerA || !playerB) return;
+      if (!submission || !submission[pair.playerA] || !submission[pair.playerB]) {
+        console.warn(`[Session ${session.code}] Skipping pair ${pair.id} - missing submissions`);
+        return;
+      }
+      
+      let playerA = session.players.get(pair.playerA);
+      let playerB = session.players.get(pair.playerB);
+      
+      // If players are disconnected, they might not be in session.players anymore
+      // We need to handle this case by creating temporary player objects
+      if (!playerA) {
+        console.warn(`[Session ${session.code}] PlayerA ${pair.playerA} not found - creating temporary entry for pair ${pair.id}`);
+        playerA = {
+          socketId: pair.playerA,
+          name: `Student (${pair.id}A)`,
+          history: [],
+          dbId: null
+        };
+        // Add back to session.players so they can receive future results
+        session.players.set(pair.playerA, playerA);
+      }
+      
+      if (!playerB) {
+        console.warn(`[Session ${session.code}] PlayerB ${pair.playerB} not found - creating temporary entry for pair ${pair.id}`);
+        playerB = {
+          socketId: pair.playerB,
+          name: `Student (${pair.id}B)`,
+          history: [],
+          dbId: null
+        };
+        // Add back to session.players so they can receive future results
+        session.players.set(pair.playerB, playerB);
+      }
+      
       const priceA = submission[pair.playerA].price;
       const priceB = submission[pair.playerB].price;
       const { demandA, demandB, shareA, shareB } = computeDemand({

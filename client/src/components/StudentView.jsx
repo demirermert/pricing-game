@@ -116,7 +116,9 @@ export function StudentView({
 
               <p style={{ marginBottom: '1rem' }}>
                 <strong>Your goal:</strong> Maximize your total profit across all rounds by choosing the optimal price. 
-                The demand you receive depends on both your price and your opponent's price.
+                The demand you receive depends on both your price and your opponent's price. 
+                Note that the <strong>marginal cost is zero</strong>, so your profit equals price times quantity sold. 
+                Remember, your goal is to <strong>maximize your own profit</strong>, not necessarily to beat your competitor.
               </p>
 
               <p style={{ marginBottom: '1rem' }}>
