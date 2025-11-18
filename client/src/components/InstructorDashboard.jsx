@@ -1337,9 +1337,9 @@ export function InstructorDashboard({
                       {/* Legend */}
                       <g transform="translate(330, 10)">
                         <circle cx="5" cy="0" r="4" fill="#3b82f6" stroke="white" strokeWidth="1" />
-                        <text x="12" y="3" fill="#1e40af" fontSize="10" fontWeight="600">{pair.playerA.split(' ')[1] || 'A'}</text>
+                        <text x="12" y="3" fill="#1e40af" fontSize="10" fontWeight="600">{pair.playerA.split(' ')[0]}</text>
                         <circle cx="5" cy="15" r="4" fill="#f97316" stroke="white" strokeWidth="1" />
-                        <text x="12" y="18" fill="#92400e" fontSize="10" fontWeight="600">{pair.playerB.split(' ')[1] || 'B'}</text>
+                        <text x="12" y="18" fill="#92400e" fontSize="10" fontWeight="600">{pair.playerB.split(' ')[0]}</text>
                       </g>
                     </>
                   );
