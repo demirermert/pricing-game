@@ -723,13 +723,16 @@ export default function SessionPage() {
 
   // If joined as instructor
   if (userRole === 'instructor') {
-    const studentCount = session?.players?.filter(player => player.role === 'student').length || 0;
-    const canStart = session?.status === 'lobby' && studentCount >= 1;
-    const canOpenLobby = session?.status === 'setup';
+    // Only use session data if it matches the current sessionCode (prevents flickering from old session)
+    const validSession = session && session.code === sessionCode ? session : null;
+    
+    const studentCount = validSession?.players?.filter(player => player.role === 'student').length || 0;
+    const canStart = validSession?.status === 'lobby' && studentCount >= 1;
+    const canOpenLobby = validSession?.status === 'setup';
     let startDisabledReason = '';
-    if (session?.status === 'lobby' && studentCount < 1) {
+    if (validSession?.status === 'lobby' && studentCount < 1) {
       startDisabledReason = 'Need at least one student to start';
-    } else if (session && session.status !== 'lobby') {
+    } else if (validSession && validSession.status !== 'lobby') {
       startDisabledReason = 'Game already in progress';
     }
 
@@ -750,8 +753,8 @@ export default function SessionPage() {
           </div>
         )}
         <InstructorDashboard
-          instructorName={userName || session?.instructorName}
-          session={session}
+          instructorName={userName || validSession?.instructorName}
+          session={validSession}
           canStart={canStart && !isCompletedSession}
           canOpenLobby={canOpenLobby && !isCompletedSession}
           startDisabledReason={startDisabledReason}
@@ -774,12 +777,15 @@ export default function SessionPage() {
   // If joined as student
   const personalLink = joinInfo?.playerLink || (studentCodeFromUrl ? `/session/${sessionCode}/${studentCodeFromUrl}` : null);
   
+  // Only use session data if it matches the current sessionCode (prevents flickering from old session)
+  const validSession = session && session.code === sessionCode ? session : null;
+  
   return (
     <div className="app-shell">
       <StudentView
         sessionCode={sessionCode}
-        sessionStatus={session?.status}
-        currentRound={roundInfo?.round || session?.currentRound || 0}
+        sessionStatus={validSession?.status}
+        currentRound={roundInfo?.round || validSession?.currentRound || 0}
         roundActive={roundActive}
         timer={timer}
         priceBounds={priceBounds}
@@ -789,7 +795,7 @@ export default function SessionPage() {
         hasSubmitted={hasSubmitted}
         personalLink={personalLink}
         nextRoundCountdown={nextRoundCountdown}
-        session={session}
+        session={validSession}
         leaderboard={leaderboard}
         allRounds={allRoundSummaries}
         chatMessages={chatMessages}
