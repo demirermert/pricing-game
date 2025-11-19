@@ -145,41 +145,6 @@ export function StudentView({
                 If you price too high compared to your opponent, customers will switch to their product. 
                 Find the sweet spot!
               </p>
-              
-              <p style={{ 
-                marginTop: '1rem', 
-                marginBottom: '0',
-                padding: '0.75rem',
-                backgroundColor: '#fef3c7',
-                borderRadius: '4px',
-                border: '1px solid #fbbf24'
-              }}>
-                <strong>📌 For reference:</strong> If you were a monopolist (no competitor), you would charge {session?.config ? (() => {
-                  let monopolyPrice;
-                  if (session.config.modelType === 'hotelling') {
-                    const V = session.config.consumerValue;
-                    const t = session.config.travelCost;
-                    const x1 = session.config.x1;
-                    const leftReach = (V/2) / t;
-                    const rightReach = (V/2) / t;
-                    if (leftReach >= x1 && rightReach >= (100 - x1)) {
-                      monopolyPrice = V/2;
-                    } else if (leftReach < x1 && rightReach < (100 - x1)) {
-                      monopolyPrice = V/2;
-                    } else if (leftReach >= x1) {
-                      monopolyPrice = (V + t * x1) / 2;
-                    } else {
-                      monopolyPrice = (V + t * (100 - x1)) / 2;
-                    }
-                  } else {
-                    monopolyPrice = 10 / session.config.alpha;
-                  }
-                  if (monopolyPrice <= 0) {
-                    return '-';
-                  }
-                  return '$' + monopolyPrice.toFixed(2);
-                })() : '-'} to maximize your profit.
-              </p>
             </div>
 
             {/* Market Parameters - Only show if enabled */}
