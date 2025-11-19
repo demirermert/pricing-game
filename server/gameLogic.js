@@ -874,6 +874,7 @@ export function createGameManager(io) {
     }
     
     io.to(session.code).emit('sessionComplete', {
+      sessionCode: session.code,
       rounds: session.roundResults
     });
     broadcastSession(session);
