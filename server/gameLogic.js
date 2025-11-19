@@ -559,7 +559,7 @@ export function createGameManager(io) {
     const getRandomPrice = () => {
       const min = session.config.priceBounds?.min || 0;
       const max = session.config.priceBounds?.max || 100;
-      return min + Math.random() * (max - min);
+      return Math.floor(min + Math.random() * (max - min + 1)); // Return integer
     };
       
     // Process all pairs sequentially to get AI decisions

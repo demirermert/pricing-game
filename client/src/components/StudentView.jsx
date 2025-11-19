@@ -111,7 +111,20 @@ export function StudentView({
               
               <p style={{ marginBottom: '1rem' }}>
                 In each round, you and your opponent will <strong>simultaneously set prices</strong> for similar but differentiated products. 
-                You have {session?.config?.roundTime || 60} seconds per round to make your decision.
+                {(() => {
+                  const roundTime = session?.config?.roundTime;
+                  if (Array.isArray(roundTime) && roundTime.length > 0) {
+                    const minTime = Math.min(...roundTime);
+                    const maxTime = Math.max(...roundTime);
+                    if (minTime === maxTime) {
+                      return <span>You have <strong>{minTime} seconds</strong> per round to make your decision.</span>;
+                    } else {
+                      return <span>You will have <strong>{minTime}-{maxTime} seconds</strong> per round to make your decision, depending on the round.</span>;
+                    }
+                  } else {
+                    return <span>You have <strong>{roundTime || 60} seconds</strong> per round to make your decision.</span>;
+                  }
+                })()}
               </p>
 
               <p style={{ marginBottom: '1rem' }}>
