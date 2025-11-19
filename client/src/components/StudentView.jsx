@@ -280,7 +280,7 @@ export function StudentView({
                 : `Round ${currentRound} of ${session?.config?.rounds || 0}`
             }
           </div>
-          {roundActive && (
+          {roundActive && timer > 0 && (
             <div style={{
               fontSize: '2.5rem',
               fontWeight: 700,
