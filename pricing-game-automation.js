@@ -671,10 +671,10 @@ async function autoSubmitForStudent(studentPage, studentNum, roundsToPlay, price
       
       console.log(`✅ Student ${studentNum} Round ${round}: Round started`);
       
-      // Generate random price within bounds
+      // Generate random integer price within bounds
       const minPrice = priceBounds?.min || 0;
       const maxPrice = priceBounds?.max || 20;
-      const randomPrice = (Math.random() * (maxPrice - minPrice) + minPrice).toFixed(2);
+      const randomPrice = Math.floor(Math.random() * (maxPrice - minPrice + 1) + minPrice);
       
       console.log(`💰 Student ${studentNum} Round ${round}: Attempting to submit price $${randomPrice}`);
       
