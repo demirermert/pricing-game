@@ -84,12 +84,6 @@ export default function SessionPage() {
 
   useEffect(() => {
     const handleJoinedSession = async payload => {
-      // Only process if this is for the current session code
-      if (payload.sessionCode !== sessionCode) {
-        console.log('[SessionPage] Ignoring joinedSession for different session:', payload.sessionCode, 'vs', sessionCode);
-        return;
-      }
-      
       setJoinInfo(payload);
       setUserRole(payload.role);
       
@@ -179,10 +173,7 @@ export default function SessionPage() {
     };
     
     const handleSessionUpdate = payload => {
-      // Only update if this is for the current session code
-      if (payload.code === sessionCode) {
-        setSession(payload);
-      }
+      setSession(payload);
     };
     
     const handleRoundStarted = payload => {
@@ -257,12 +248,6 @@ export default function SessionPage() {
     };
     
     const handleSessionComplete = payload => {
-      // Only process if this is for the current session code
-      if (payload.sessionCode && payload.sessionCode !== sessionCode) {
-        console.log('[SessionPage] Ignoring sessionComplete for different session:', payload.sessionCode, 'vs', sessionCode);
-        return;
-      }
-      
       setRoundActive(false);
       setLatestRoundSummary(payload.rounds[payload.rounds.length - 1] || null);
       

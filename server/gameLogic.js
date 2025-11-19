@@ -289,7 +289,6 @@ export function createGameManager(io) {
       
       // Prepare join response
       const joinResponse = {
-        sessionCode: code, // Add explicit sessionCode field for validation
         code,
         role: socket.data.role,
         status: session.status,
@@ -875,7 +874,6 @@ export function createGameManager(io) {
     }
     
     io.to(session.code).emit('sessionComplete', {
-      sessionCode: session.code,
       rounds: session.roundResults
     });
     broadcastSession(session);
