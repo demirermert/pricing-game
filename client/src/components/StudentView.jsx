@@ -182,8 +182,8 @@ export function StudentView({
               </p>
             </div>
 
-            {/* Market Parameters */}
-            {session?.config && (
+            {/* Market Parameters - Only show if enabled */}
+            {session?.config?.showModelParameters && session?.config && (
               <div style={{
                 backgroundColor: '#f0f9ff',
                 padding: '1.5rem',

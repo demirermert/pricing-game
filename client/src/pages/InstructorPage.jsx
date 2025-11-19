@@ -32,7 +32,8 @@ const DEFAULT_CONFIG = {
   defaultPrice: 10,
   enableChat: false,
   hideRoundCount: false,
-  showOpponentName: false
+  showOpponentName: false,
+  showModelParameters: false
 };
 
 export default function InstructorPage() {
@@ -100,7 +101,8 @@ export default function InstructorPage() {
           },
           enableChat: Boolean(instructorConfig.enableChat),
           hideRoundCount: Boolean(instructorConfig.hideRoundCount),
-          showOpponentName: Boolean(instructorConfig.showOpponentName)
+          showOpponentName: Boolean(instructorConfig.showOpponentName),
+          showModelParameters: Boolean(instructorConfig.showModelParameters)
         }
       };
       const response = await fetch(buildApiUrl('/session'), {
@@ -524,6 +526,21 @@ export default function InstructorPage() {
                 </label>
                 <small style={{ color: '#6b7280', fontSize: '0.875rem', marginLeft: '1.75rem' }}>
                   👥 Students will see who they are paired with during the game
+                </small>
+              </div>
+
+              <div className="input-row">
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={instructorConfig.showModelParameters}
+                    onChange={event => setInstructorConfig(cfg => ({ ...cfg, showModelParameters: event.target.checked }))}
+                    style={{ width: 'auto', cursor: 'pointer' }}
+                  />
+                  <span>Show model parameters to students</span>
+                </label>
+                <small style={{ color: '#6b7280', fontSize: '0.875rem', marginLeft: '1.75rem' }}>
+                  📊 Students will see the detailed market parameters (travel cost, consumer value, etc.)
                 </small>
               </div>
 
