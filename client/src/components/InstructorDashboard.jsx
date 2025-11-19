@@ -191,8 +191,9 @@ export function InstructorDashboard({
           pairData.priceHistoryB.push(result.opponentPrice);
           pairData.profitHistoryA.push(result.profit);
           pairData.profitHistoryB.push(opponentResult ? opponentResult.profit : 0);
-          pairData.shareHistoryA.push(result.share);
-          pairData.shareHistoryB.push(opponentResult ? opponentResult.share : 0);
+          // Database format uses 'marketShare' instead of 'share'
+          pairData.shareHistoryA.push(result.marketShare ?? result.share ?? 0);
+          pairData.shareHistoryB.push(opponentResult ? (opponentResult.marketShare ?? opponentResult.share ?? 0) : 0);
         }
       });
     });
