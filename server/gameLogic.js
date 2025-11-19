@@ -289,6 +289,7 @@ export function createGameManager(io) {
       
       // Prepare join response
       const joinResponse = {
+        sessionCode: code, // Add explicit sessionCode field for validation
         code,
         role: socket.data.role,
         status: session.status,
