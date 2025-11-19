@@ -157,10 +157,6 @@ export function createGameManager(io) {
   }
 
   function registerPlayer(session, socket, { playerName, role, studentCode }) {
-    if (!playerName) {
-      throw new Error('Name is required');
-    }
-    
     // Check if this student is rejoining with their unique code
     if (studentCode && role === 'student') {
       // Look for existing player with this unique code
@@ -169,8 +165,11 @@ export function createGameManager(io) {
       );
       
       if (existingPlayer) {
-        // Verify the name matches (security check)
-        if (existingPlayer.name !== playerName) {
+        // If playerName is empty, use the existing player's name (rejoining without localStorage)
+        const nameToUse = playerName || existingPlayer.name;
+        
+        // If playerName was provided, verify it matches (security check)
+        if (playerName && existingPlayer.name !== playerName) {
           throw new Error('Name does not match this student code');
         }
         
@@ -198,9 +197,14 @@ export function createGameManager(io) {
         socket.data.sessionCode = session.code;
         socket.data.role = existingPlayer.role;
         socket.data.studentCode = studentCode;
-        console.log(`${playerName} rejoined session ${session.code} with code ${studentCode}`);
+        console.log(`${nameToUse} rejoined session ${session.code} with code ${studentCode}`);
         return existingPlayer.studentCode; // Return existing code
       }
+    }
+    
+    // For new players, name is required
+    if (!playerName) {
+      throw new Error('Name is required');
     }
     
     // New player joining - generate unique student code

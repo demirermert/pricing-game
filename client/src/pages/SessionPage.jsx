@@ -27,7 +27,7 @@ export default function SessionPage() {
     localStorage.getItem(`instructor_${sessionCode}`)
   );
   const shouldAutoJoinStudent = !isManagePage && (
-    (studentCodeFromUrl && localStorage.getItem(`student_${sessionCode}_${studentCodeFromUrl}`)) ||
+    studentCodeFromUrl || // Always auto-join if personal link exists
     navigationState?.studentName
   );
   const shouldAutoJoin = shouldAutoJoinInstructor || shouldAutoJoinStudent;
@@ -507,6 +507,7 @@ export default function SessionPage() {
               studentCode: studentCodeFromUrl,
               role: 'student'
             });
+            return; // Exit early after rejoining
           } else {
             // Data is too old, clear it
             console.log('Session data expired (>8 minutes), clearing...');
@@ -518,7 +519,18 @@ export default function SessionPage() {
           localStorage.removeItem(storageKey);
         }
       }
-      // If no stored name, user will need to enter it in the form below
+      
+      // If no stored name OR storage expired, try rejoining with just the student code
+      // The server can look up the player by their studentCode
+      console.log('Attempting to rejoin with studentCode only (no stored name)');
+      setIsJoining(true);
+      setHasAttemptedJoin(true);
+      socket.emit('joinSession', {
+        sessionCode,
+        playerName: '', // Server will use existing name
+        studentCode: studentCodeFromUrl,
+        role: 'student'
+      });
     } else {
       // On /session/ route without student code, check for navigation state
       const state = navigationState;
