@@ -53,6 +53,28 @@ export default function SessionPage() {
   const [chatMessages, setChatMessages] = useState([]);
   const [opponentName, setOpponentName] = useState(null);
 
+  // Clear all state when session code changes (navigating to a new session)
+  useEffect(() => {
+    console.log('[SessionPage] Session code changed to:', sessionCode);
+    // Reset all game state
+    setSession(null);
+    setJoinInfo(null);
+    setIsCompletedSession(false);
+    setRoundInfo(null);
+    setTimer(0);
+    setRoundActive(false);
+    setLatestResult(null);
+    setHistory([]);
+    setHasSubmitted(false);
+    setErrorMessage('');
+    setLeaderboardData(new Map());
+    setLatestRoundSummary(null);
+    setAllRoundSummaries([]);
+    setNextRoundCountdown(null);
+    setChatMessages([]);
+    setOpponentName(null);
+  }, [sessionCode]);
+
   useEffect(() => {
     const handleJoinedSession = async payload => {
       setJoinInfo(payload);
