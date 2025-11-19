@@ -126,7 +126,9 @@ export function InstructorDashboard({
               playerB: result.playerB.name,
               totalProfit: 0,
               priceHistoryA: [],
-              priceHistoryB: []
+              priceHistoryB: [],
+              profitHistoryA: [],
+              profitHistoryB: []
             });
           }
           
@@ -134,6 +136,8 @@ export function InstructorDashboard({
           pairData.totalProfit += totalPairProfit;
           pairData.priceHistoryA.push(result.playerA.price);
           pairData.priceHistoryB.push(result.playerB.price);
+          pairData.profitHistoryA.push(result.playerA.profit);
+          pairData.profitHistoryB.push(result.playerB.profit);
         } else if (result.playerName && result.opponentName) {
           // Database format - need to get pairId from session.players
           // Find the player in the current session to get their pairId
@@ -163,7 +167,9 @@ export function InstructorDashboard({
               playerB: result.opponentName,
               totalProfit: 0,
               priceHistoryA: [],
-              priceHistoryB: []
+              priceHistoryB: [],
+              profitHistoryA: [],
+              profitHistoryB: []
             });
           }
           
@@ -177,6 +183,8 @@ export function InstructorDashboard({
           pairData.totalProfit += totalPairProfitThisRound;
           pairData.priceHistoryA.push(result.price);
           pairData.priceHistoryB.push(result.opponentPrice);
+          pairData.profitHistoryA.push(result.profit);
+          pairData.profitHistoryB.push(opponentResult ? opponentResult.profit : 0);
         }
       });
     });
@@ -1347,7 +1355,7 @@ export function InstructorDashboard({
               </svg>
             </div>
             
-            {/* Price Table */}
+            {/* Price & Profit Table */}
             <table style={{
               width: '100%',
               borderCollapse: 'collapse',
@@ -1378,6 +1386,21 @@ export function InstructorDashboard({
                 </tr>
               </thead>
               <tbody>
+                {/* Price Section Header */}
+                <tr style={{ backgroundColor: '#e5e7eb' }}>
+                  <td colSpan={pair.priceHistoryA.length + 1} style={{
+                    padding: '0.3rem 0.5rem',
+                    fontWeight: 700,
+                    color: '#374151',
+                    textAlign: 'center',
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #d1d5db'
+                  }}>
+                    PRICES
+                  </td>
+                </tr>
+                
+                {/* Player A Prices */}
                 <tr style={{ backgroundColor: '#dbeafe' }}>
                   <td style={{
                     padding: '0.5rem',
@@ -1399,11 +1422,14 @@ export function InstructorDashboard({
                     </td>
                   ))}
                 </tr>
+                
+                {/* Player B Prices */}
                 <tr style={{ backgroundColor: '#fed7aa' }}>
                   <td style={{
                     padding: '0.5rem',
                     fontWeight: 600,
-                    color: '#92400e'
+                    color: '#92400e',
+                    borderBottom: '2px solid #9ca3af'
                   }}>
                     {pair.playerB}
                   </td>
@@ -1412,9 +1438,68 @@ export function InstructorDashboard({
                       padding: '0.5rem',
                       textAlign: 'center',
                       fontWeight: 600,
-                      color: '#1f2937'
+                      color: '#1f2937',
+                      borderBottom: '2px solid #9ca3af'
                     }}>
                       ${price.toFixed(1)}
+                    </td>
+                  ))}
+                </tr>
+                
+                {/* Profit Section Header */}
+                <tr style={{ backgroundColor: '#e5e7eb' }}>
+                  <td colSpan={pair.priceHistoryA.length + 1} style={{
+                    padding: '0.3rem 0.5rem',
+                    fontWeight: 700,
+                    color: '#374151',
+                    textAlign: 'center',
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #d1d5db'
+                  }}>
+                    PROFITS
+                  </td>
+                </tr>
+                
+                {/* Player A Profits */}
+                <tr style={{ backgroundColor: '#dbeafe' }}>
+                  <td style={{
+                    padding: '0.5rem',
+                    fontWeight: 600,
+                    color: '#1e40af',
+                    borderBottom: '1px solid #d1d5db'
+                  }}>
+                    {pair.playerA}
+                  </td>
+                  {pair.profitHistoryA && pair.profitHistoryA.map((profit, i) => (
+                    <td key={i} style={{
+                      padding: '0.5rem',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#10b981',
+                      borderBottom: '1px solid #d1d5db'
+                    }}>
+                      ${profit.toFixed(0)}
+                    </td>
+                  ))}
+                </tr>
+                
+                {/* Player B Profits */}
+                <tr style={{ backgroundColor: '#fed7aa' }}>
+                  <td style={{
+                    padding: '0.5rem',
+                    fontWeight: 600,
+                    color: '#92400e'
+                  }}>
+                    {pair.playerB}
+                  </td>
+                  {pair.profitHistoryB && pair.profitHistoryB.map((profit, i) => (
+                    <td key={i} style={{
+                      padding: '0.5rem',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#10b981'
+                    }}>
+                      ${profit.toFixed(0)}
                     </td>
                   ))}
                 </tr>
