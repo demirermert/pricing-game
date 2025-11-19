@@ -128,7 +128,9 @@ export function InstructorDashboard({
               priceHistoryA: [],
               priceHistoryB: [],
               profitHistoryA: [],
-              profitHistoryB: []
+              profitHistoryB: [],
+              shareHistoryA: [],
+              shareHistoryB: []
             });
           }
           
@@ -138,6 +140,8 @@ export function InstructorDashboard({
           pairData.priceHistoryB.push(result.playerB.price);
           pairData.profitHistoryA.push(result.playerA.profit);
           pairData.profitHistoryB.push(result.playerB.profit);
+          pairData.shareHistoryA.push(result.playerA.share);
+          pairData.shareHistoryB.push(result.playerB.share);
         } else if (result.playerName && result.opponentName) {
           // Database format - need to get pairId from session.players
           // Find the player in the current session to get their pairId
@@ -169,7 +173,9 @@ export function InstructorDashboard({
               priceHistoryA: [],
               priceHistoryB: [],
               profitHistoryA: [],
-              profitHistoryB: []
+              profitHistoryB: [],
+              shareHistoryA: [],
+              shareHistoryB: []
             });
           }
           
@@ -185,6 +191,8 @@ export function InstructorDashboard({
           pairData.priceHistoryB.push(result.opponentPrice);
           pairData.profitHistoryA.push(result.profit);
           pairData.profitHistoryB.push(opponentResult ? opponentResult.profit : 0);
+          pairData.shareHistoryA.push(result.share);
+          pairData.shareHistoryB.push(opponentResult ? opponentResult.share : 0);
         }
       });
     });
@@ -1488,7 +1496,8 @@ export function InstructorDashboard({
                   <td style={{
                     padding: '0.5rem',
                     fontWeight: 600,
-                    color: '#92400e'
+                    color: '#92400e',
+                    borderBottom: '2px solid #9ca3af'
                   }}>
                     {pair.playerB}
                   </td>
@@ -1497,9 +1506,68 @@ export function InstructorDashboard({
                       padding: '0.5rem',
                       textAlign: 'center',
                       fontWeight: 600,
-                      color: '#10b981'
+                      color: '#10b981',
+                      borderBottom: '2px solid #9ca3af'
                     }}>
                       ${profit.toFixed(0)}
+                    </td>
+                  ))}
+                </tr>
+                
+                {/* Market Share Section Header */}
+                <tr style={{ backgroundColor: '#e5e7eb' }}>
+                  <td colSpan={pair.priceHistoryA.length + 1} style={{
+                    padding: '0.3rem 0.5rem',
+                    fontWeight: 700,
+                    color: '#374151',
+                    textAlign: 'center',
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #d1d5db'
+                  }}>
+                    MARKET SHARES
+                  </td>
+                </tr>
+                
+                {/* Player A Market Shares */}
+                <tr style={{ backgroundColor: '#dbeafe' }}>
+                  <td style={{
+                    padding: '0.5rem',
+                    fontWeight: 600,
+                    color: '#1e40af',
+                    borderBottom: '1px solid #d1d5db'
+                  }}>
+                    {pair.playerA}
+                  </td>
+                  {pair.shareHistoryA && pair.shareHistoryA.map((share, i) => (
+                    <td key={i} style={{
+                      padding: '0.5rem',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#3b82f6',
+                      borderBottom: '1px solid #d1d5db'
+                    }}>
+                      {(share * 100).toFixed(1)}%
+                    </td>
+                  ))}
+                </tr>
+                
+                {/* Player B Market Shares */}
+                <tr style={{ backgroundColor: '#fed7aa' }}>
+                  <td style={{
+                    padding: '0.5rem',
+                    fontWeight: 600,
+                    color: '#92400e'
+                  }}>
+                    {pair.playerB}
+                  </td>
+                  {pair.shareHistoryB && pair.shareHistoryB.map((share, i) => (
+                    <td key={i} style={{
+                      padding: '0.5rem',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      color: '#3b82f6'
+                    }}>
+                      {(share * 100).toFixed(1)}%
                     </td>
                   ))}
                 </tr>
