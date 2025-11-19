@@ -291,6 +291,10 @@ export function createGameManager(io) {
       // Use the returned code (either new or existing)
       const finalStudentCode = returnedCode || studentCode;
       
+      // Get the actual player object to get their real name (important for rejoins with empty playerName)
+      const actualPlayer = session.players.get(socket.id);
+      const actualPlayerName = actualPlayer ? actualPlayer.name : playerName;
+      
       // Prepare join response
       const joinResponse = {
         code,
@@ -300,7 +304,7 @@ export function createGameManager(io) {
         currentRound: session.currentRound,
         studentCode: finalStudentCode || null,
         playerLink: finalStudentCode ? `/session/${code}/${finalStudentCode}` : null,
-        playerName: playerName
+        playerName: actualPlayerName
       };
       
       // If rejoining mid-round or mid-game, send current state and history
