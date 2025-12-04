@@ -56,8 +56,8 @@ export default function UltimatumInstructorPage() {
   const handleDeleteSession = async (code) => {
     if (!confirm(`Delete session ${code}?`)) return;
     try {
-      const response = await fetch(buildApiUrl(`/session/${code}/delete`), {
-        method: 'POST'
+      const response = await fetch(buildApiUrl(`/session/${code}`), {
+        method: 'DELETE'
       });
       if (!response.ok) throw new Error('Failed to delete session');
       await fetchSessions(); // Refresh list
