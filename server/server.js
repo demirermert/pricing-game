@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { Server as SocketIOServer } from 'socket.io';
 import { createGameManager } from './gameLogic.js';
+import { createUltimatumGameManager } from './ultimatumGame.js';
 import * as db from './database.js';
 import { initializeOpenAI } from './aiPlayer.js';
 
@@ -33,6 +34,7 @@ app.options('*', cors(corsConfig));
 app.use(express.json());
 
 const manager = createGameManager(io);
+const ultimatumManager = createUltimatumGameManager(io);
 
 app.get('/', (_req, res) => {
   res.send('Price competition API is running. Use /health for status checks.');
@@ -44,9 +46,15 @@ app.get('/health', (_req, res) => {
 
 app.post('/session', async (req, res) => {
   try {
-    const { instructorName, sessionName, config } = req.body || {};
-    const session = await manager.createSession(instructorName, sessionName, config);
-    res.status(201).json(session);
+    const { instructorName, sessionName, config, gameType } = req.body || {};
+    
+    if (gameType === 'ultimatum') {
+      const session = ultimatumManager.createSession(instructorName, sessionName, config);
+      res.status(201).json(session);
+    } else {
+      const session = await manager.createSession(instructorName, sessionName, config);
+      res.status(201).json(session);
+    }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -114,15 +122,25 @@ app.delete('/session/:code', (req, res) => {
 
 io.on('connection', socket => {
   socket.on('joinSession', payload => {
-    manager.handleJoin(socket, payload);
+    // Try ultimatum first, then pricing game
+    const handled = ultimatumManager.handleJoin(socket, payload);
+    if (!handled) {
+      manager.handleJoin(socket, payload);
+    }
   });
 
   socket.on('openLobby', ({ sessionCode }) => {
-    manager.handleOpenLobby(socket, sessionCode);
+    const handled = ultimatumManager.handleOpenLobby(socket, sessionCode);
+    if (!handled) {
+      manager.handleOpenLobby(socket, sessionCode);
+    }
   });
 
   socket.on('startSession', ({ sessionCode }) => {
-    manager.handleStartSession(socket, sessionCode);
+    const handled = ultimatumManager.handleStartSession(socket, sessionCode);
+    if (!handled) {
+      manager.handleStartSession(socket, sessionCode);
+    }
   });
 
   socket.on('submitPrice', payload => {
@@ -134,7 +152,19 @@ io.on('connection', socket => {
   });
 
   socket.on('endSession', ({ sessionCode }) => {
-    manager.handleEndSession(socket, sessionCode);
+    const handled = ultimatumManager.handleEndSession(socket, sessionCode);
+    if (!handled) {
+      manager.handleEndSession(socket, sessionCode);
+    }
+  });
+
+  // Ultimatum game specific events
+  socket.on('ultimatum:makeOffer', payload => {
+    ultimatumManager.handleMakeOffer(socket, payload);
+  });
+
+  socket.on('ultimatum:makeDecision', payload => {
+    ultimatumManager.handleMakeDecision(socket, payload);
   });
 
   socket.on('heartbeat', () => {
