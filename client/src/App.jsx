@@ -23,9 +23,9 @@ export default function App() {
         {/* Ultimatum Game Routes */}
         <Route path="/ult" element={<UltimatumStudentPage />} />
         <Route path="/ult/instructor" element={<UltimatumInstructorPage />} />
-        <Route path="/ult/:sessionCode" element={<UltimatumStudentPage />} />
-        <Route path="/ult/:sessionCode/:studentId" element={<UltimatumStudentPage />} />
         <Route path="/ult/manage/:sessionCode" element={<UltimatumSessionPage />} />
+        <Route path="/ult/session/:sessionCode/:studentId" element={<UltimatumStudentPage />} />
+        <Route path="/ult/session/:sessionCode" element={<UltimatumStudentPage />} />
       </Routes>
     </BrowserRouter>
   );

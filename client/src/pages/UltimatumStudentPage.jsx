@@ -111,6 +111,11 @@ export default function UltimatumStudentPage() {
         setLastName(parts.slice(1).join(' '));
       }
     }
+    
+    // Navigate to student-specific URL
+    if (data.code && data.studentCode && !urlSessionCode) {
+      navigate(`/ult/session/${data.code}/${data.studentCode}`, { replace: true });
+    }
   };
 
   const handleSessionUpdate = (data) => {
@@ -376,34 +381,76 @@ export default function UltimatumStudentPage() {
               </p>
             </div>
 
-            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-              <label style={{ display: 'block', marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 600 }}>
-                How much do you want to offer? ($0 - $20)
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="20"
-                step="1"
-                value={offerAmount}
-                onChange={(e) => setOfferAmount(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  fontSize: '2rem',
+            <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+              <div style={{
+                padding: '2rem',
+                backgroundColor: '#f9fafb',
+                borderRadius: '12px',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ fontSize: '1.125rem', color: '#6b7280', marginBottom: '1rem', textAlign: 'center' }}>
+                  How much do you want to offer?
+                </div>
+                <div style={{
+                  fontSize: '4rem',
+                  fontWeight: 700,
+                  color: '#3b82f6',
                   textAlign: 'center',
-                  border: '2px solid #3b82f6',
+                  marginBottom: '2rem'
+                }}>
+                  ${offerAmount || 0}
+                </div>
+                
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  value={offerAmount || 0}
+                  onChange={(e) => setOfferAmount(e.target.value)}
+                  style={{
+                    width: '100%',
+                    height: '12px',
+                    borderRadius: '6px',
+                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(offerAmount || 0) * 5}%, #e5e7eb ${(offerAmount || 0) * 5}%, #e5e7eb 100%)`,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    WebkitAppearance: 'none',
+                    appearance: 'none'
+                  }}
+                />
+                
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: '0.5rem',
+                  fontSize: '0.875rem',
+                  color: '#6b7280'
+                }}>
+                  <span>$0</span>
+                  <span>$10</span>
+                  <span>$20</span>
+                </div>
+                
+                <div style={{
+                  marginTop: '1.5rem',
+                  padding: '1rem',
+                  backgroundColor: '#e0f2fe',
                   borderRadius: '8px',
-                  marginBottom: '1.5rem'
-                }}
-                placeholder="0"
-              />
+                  fontSize: '0.875rem',
+                  color: '#0c4a6e'
+                }}>
+                  💡 <strong>Your payoff if accepted:</strong> ${20 - (offerAmount || 0)}<br/>
+                  💡 <strong>Partner's payoff if accepted:</strong> ${offerAmount || 0}
+                </div>
+              </div>
+              
               <button
                 onClick={submitOffer}
                 className="primary"
                 style={{
                   width: '100%',
-                  padding: '1rem',
+                  padding: '1.25rem',
                   fontSize: '1.25rem',
                   fontWeight: 600
                 }}

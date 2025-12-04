@@ -92,6 +92,7 @@ async function setupInstructorManual(browser) {
     let clicked = false;
     for (const button of buttons) {
       const text = await button.evaluate(el => el.textContent.trim()).catch(() => '');
+      console.log(`  Button text: "${text}"`);
       if (text.toLowerCase().includes('new') && text.toLowerCase().includes('game')) {
         console.log('🖱️  Clicking New Game button...');
         await button.click();
@@ -108,20 +109,9 @@ async function setupInstructorManual(browser) {
     console.log('✅ Clicked New Game button');
     await delay(1000);
     
-    // Set rounds if specified
+    // Note: Ultimatum Game always has 1 round, so we don't set rounds
     if (NUM_ROUNDS !== null) {
-      console.log(`🔢 Setting number of rounds to ${NUM_ROUNDS}...`);
-      try {
-        const roundsInput = await instructorPage.$('input[type="number"]').catch(() => null);
-        if (roundsInput) {
-          await roundsInput.click({ clickCount: 3 });
-          await roundsInput.type(String(NUM_ROUNDS));
-          console.log(`✅ Set rounds to ${NUM_ROUNDS}`);
-        }
-      } catch (e) {
-        console.log('⚠️  Error setting rounds:', e.message);
-      }
-      await delay(500);
+      console.log(`⚠️  Note: Ultimatum Game always plays 1 round (NUM_ROUNDS ignored)`);
     }
     
     console.log('\n' + '='.repeat(60));
@@ -142,6 +132,11 @@ async function setupInstructorManual(browser) {
       await delay(1000);
       attempts++;
       
+      // Check if page is still alive
+      if (instructorPage.isClosed()) {
+        throw new Error('Instructor page was closed');
+      }
+      
       sessionCode = await instructorPage.evaluate(() => {
         const urlMatch = window.location.pathname.match(/\/ult\/manage\/([A-Z]{4})/);
         if (urlMatch) return urlMatch[1];
@@ -155,7 +150,10 @@ async function setupInstructorManual(browser) {
           }
         }
         return null;
-      }).catch(() => null);
+      }).catch(err => {
+        console.log(`⚠️  Error checking for session code (attempt ${attempts}):`, err.message);
+        return null;
+      });
       
       if (sessionCode) {
         await delay(500);
@@ -242,9 +240,12 @@ async function setupInstructor(browser) {
     
     const buttons = await instructorPage.$$('button').catch(() => []);
     
+    console.log(`Found ${buttons.length} button(s) on page`);
+    
     let clicked = false;
     for (const button of buttons) {
       const text = await button.evaluate(el => el.textContent.trim()).catch(() => '');
+      console.log(`  Button text: "${text}"`);
       if (text.toLowerCase().includes('new') && text.toLowerCase().includes('game')) {
         console.log('🖱️  Clicking New Game button...');
         await button.click();
@@ -261,21 +262,8 @@ async function setupInstructor(browser) {
     console.log('✅ Clicked New Game button');
     await delay(1000);
     
-    // Set rounds if specified
-    if (NUM_ROUNDS !== null) {
-      console.log(`🔢 Setting number of rounds to ${NUM_ROUNDS}...`);
-      try {
-        const roundsInput = await instructorPage.$('input[type="number"]').catch(() => null);
-        if (roundsInput) {
-          await roundsInput.click({ clickCount: 3 });
-          await roundsInput.type(String(NUM_ROUNDS));
-          console.log(`✅ Set rounds to ${NUM_ROUNDS}`);
-        }
-      } catch (e) {
-        console.log('⚠️  Error setting rounds:', e.message);
-      }
-      await delay(500);
-    }
+    // Note: Ultimatum Game always has 1 round, so we don't set rounds
+    // The time settings can be configured in the UI if needed
     
     // Click Create Session
     console.log('📝 Looking for "Create Session" button...');
