@@ -9,6 +9,7 @@ export default function UltimatumSessionPage() {
   const [session, setSession] = useState(null);
   const [error, setError] = useState('');
   const [timer, setTimer] = useState(0);
+  const [showAcceptedOnly, setShowAcceptedOnly] = useState(false);
 
   useEffect(() => {
     // Join as instructor
@@ -251,19 +252,34 @@ export default function UltimatumSessionPage() {
             {/* Results Table */}
             {session.roundResults && session.roundResults.length > 0 && (
               <div style={{ marginTop: '2rem' }}>
+                {/* Header with checkbox and copy button */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ margin: 0 }}>📊 Game Results</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <h3 style={{ margin: 0 }}>📊 Game Results</h3>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={showAcceptedOnly}
+                        onChange={(e) => setShowAcceptedOnly(e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span>Show accepted only</span>
+                    </label>
+                  </div>
                   <button
                     onClick={() => {
                       const rows = [];
                       session.roundResults.forEach((roundData) => {
                         roundData.results.forEach((result) => {
-                          rows.push(`${result.proposer.name}, ${result.responder.name}`);
+                          // Only include if not filtering, or if filtering and accepted
+                          if (!showAcceptedOnly || result.responder.accepted) {
+                            rows.push(`${result.proposer.name}, ${result.responder.name}`);
+                          }
                         });
                       });
                       const text = rows.join('\n');
                       navigator.clipboard.writeText(text).then(() => {
-                        alert('Player names copied to clipboard!');
+                        alert(`${rows.length} player pairs copied to clipboard!`);
                       }).catch(err => {
                         console.error('Failed to copy:', err);
                         alert('Failed to copy to clipboard');
@@ -299,14 +315,33 @@ export default function UltimatumSessionPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {session.roundResults.map((roundData, roundIdx) => 
-                        roundData.results.map((result, pairIdx) => (
-                          <tr key={`${roundIdx}-${pairIdx}`} style={{
-                            borderTop: (roundIdx > 0 || pairIdx > 0) ? '1px solid #e5e7eb' : 'none',
-                            backgroundColor: (roundIdx * roundData.results.length + pairIdx) % 2 === 0 ? 'white' : '#f9fafb'
+                      {(() => {
+                        // Flatten all results into a single array
+                        const allResults = [];
+                        session.roundResults.forEach((roundData) => {
+                          roundData.results.forEach((result) => {
+                            allResults.push(result);
+                          });
+                        });
+                        
+                        // Filter if checkbox is checked
+                        const filteredResults = showAcceptedOnly 
+                          ? allResults.filter(r => r.responder.accepted)
+                          : allResults;
+                        
+                        // Sort by offer amount (ascending)
+                        const sortedResults = [...filteredResults].sort((a, b) => 
+                          a.proposer.offer - b.proposer.offer
+                        );
+                        
+                        // Render rows
+                        return sortedResults.map((result, idx) => (
+                          <tr key={idx} style={{
+                            borderTop: idx > 0 ? '1px solid #e5e7eb' : 'none',
+                            backgroundColor: idx % 2 === 0 ? 'white' : '#f9fafb'
                           }}>
                             <td style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 500 }}>
-                              {roundIdx * roundData.results.length + pairIdx + 1}
+                              {idx + 1}
                             </td>
                             <td style={{ padding: '0.75rem' }}>
                               {result.proposer.name}
@@ -330,8 +365,8 @@ export default function UltimatumSessionPage() {
                               </span>
                             </td>
                           </tr>
-                        ))
-                      )}
+                        ));
+                      })()}
                     </tbody>
                   </table>
                 </div>

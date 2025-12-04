@@ -90,6 +90,7 @@ async function setupInstructorManual(browser) {
     console.log(`Found ${buttons.length} button(s) on page`);
     
     let clicked = false;
+    let foundText = '';
     for (const button of buttons) {
       const text = await button.evaluate(el => el.textContent.trim()).catch(() => '');
       console.log(`  Button text: "${text}"`);
@@ -97,6 +98,14 @@ async function setupInstructorManual(browser) {
         console.log('🖱️  Clicking New Game button...');
         await button.click();
         clicked = true;
+        foundText = text;
+        break;
+      }
+      // Check if form is already open (button says "Hide Form")
+      if (text.toLowerCase().includes('hide') && text.toLowerCase().includes('form')) {
+        console.log('✅ Form already open (button shows "Hide Form")');
+        clicked = true; // Don't click, just proceed
+        foundText = text;
         break;
       }
     }
@@ -106,7 +115,9 @@ async function setupInstructorManual(browser) {
       throw new Error('New Game button not found');
     }
     
-    console.log('✅ Clicked New Game button');
+    if (!foundText.includes('Hide')) {
+      console.log('✅ Clicked New Game button');
+    }
     await delay(1000);
     
     // Note: Ultimatum Game always has 1 round, so we don't set rounds

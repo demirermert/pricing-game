@@ -356,9 +356,9 @@ export default function UltimatumStudentPage() {
               <h3 style={{ marginTop: 0 }}>How to Play:</h3>
               <p>In each round, you'll be paired with another student.</p>
               <p><strong>If you're Player 1 (Proposer):</strong><br/>
-              You'll have 10 seconds to offer any amount from $0 to $20 to your partner.</p>
+              You'll have {session?.config?.proposeTime || 10} seconds to offer any amount from $0 to $20 to your partner.</p>
               <p><strong>If you're Player 2 (Responder):</strong><br/>
-              You'll see the offer and have 10 seconds to accept or reject it.</p>
+              You'll see the offer and have {session?.config?.respondTime || 10} seconds to accept or reject it.</p>
               <p><strong>Payoffs:</strong><br/>
               • If accepted: Player 1 gets $(20 - offer), Player 2 gets $offer<br/>
               • If rejected: Both players get $0</p>
