@@ -80,7 +80,14 @@ export function createUltimatumGameManager(io) {
 
     sessions.set(code, session);
     console.log(`Ultimatum Session ${code} created by ${instructorName}`);
-    return { code, sessionName: session.sessionName, config, gameType: 'ultimatum' };
+    return { 
+      code, 
+      sessionName: session.sessionName, 
+      instructorName: session.instructorName,
+      config,
+      status: session.status,
+      gameType: 'ultimatum' 
+    };
   }
 
   function broadcastSession(session) {
