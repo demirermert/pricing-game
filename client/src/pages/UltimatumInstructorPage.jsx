@@ -27,8 +27,44 @@ export default function UltimatumInstructorPage() {
   const [sessionName, setSessionName] = useState('');
   const [instructorConfig, setInstructorConfig] = useState(DEFAULT_CONFIG);
   const [errorMessage, setErrorMessage] = useState('');
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const instructorName = 'Instructor'; // Default single instructor name
+
+  // Fetch sessions on mount
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const fetchSessions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(buildApiUrl('/sessions'));
+      if (!response.ok) throw new Error('Failed to fetch sessions');
+      const allSessions = await response.json();
+      // Filter for only ultimatum games
+      const ultimatumSessions = allSessions.filter(s => s.gameType === 'ultimatum');
+      setSessions(ultimatumSessions);
+    } catch (err) {
+      console.error('Error fetching sessions:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async (code) => {
+    if (!confirm(`Delete session ${code}?`)) return;
+    try {
+      const response = await fetch(buildApiUrl(`/session/${code}/delete`), {
+        method: 'POST'
+      });
+      if (!response.ok) throw new Error('Failed to delete session');
+      await fetchSessions(); // Refresh list
+    } catch (err) {
+      setErrorMessage(err.message);
+    }
+  };
 
   const handleCreateSession = async (event) => {
     event.preventDefault();
@@ -252,6 +288,97 @@ export default function UltimatumInstructorPage() {
               }}>/ult</code>
             </p>
           </div>
+        </section>
+
+        {/* Session History */}
+        <section style={{ marginTop: '2rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>Session History ({sessions.length})</h2>
+          {loading ? (
+            <p style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>Loading sessions...</p>
+          ) : sessions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+              <p>No sessions found. Create your first Ultimatum Game!</p>
+            </div>
+          ) : (
+            <div style={{ border: '2px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ backgroundColor: '#f9fafb' }}>
+                  <tr>
+                    <th style={{ padding: '0.75rem', textAlign: 'left' }}>Session Name</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Code</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Status</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Students</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left' }}>Created</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map((session, idx) => (
+                    <tr key={session.code} style={{
+                      borderTop: idx > 0 ? '1px solid #e5e7eb' : 'none',
+                      backgroundColor: idx % 2 === 0 ? 'white' : '#f9fafb'
+                    }}>
+                      <td style={{ padding: '0.75rem', fontWeight: 500 }}>
+                        {session.sessionName || 'Untitled Session'}
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>
+                        {session.code}
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <span style={{
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          backgroundColor: session.status === 'complete' ? '#dcfce7' : session.status === 'lobby' ? '#fef3c7' : '#dbeafe',
+                          color: session.status === 'complete' ? '#065f46' : session.status === 'lobby' ? '#92400e' : '#1e40af'
+                        }}>
+                          {session.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        {session.studentCount || 0}
+                      </td>
+                      <td style={{ padding: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                        {new Date(session.createdAt).toLocaleString()}
+                      </td>
+                      <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                          <Link to={`/ult/manage/${session.code}`}>
+                            <button style={{
+                              padding: '0.375rem 0.75rem',
+                              fontSize: '0.875rem',
+                              backgroundColor: '#3b82f6',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}>
+                              Open
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteSession(session.code)}
+                            style={{
+                              padding: '0.375rem 0.75rem',
+                              fontSize: '0.875rem',
+                              backgroundColor: '#dc2626',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </div>
     </div>

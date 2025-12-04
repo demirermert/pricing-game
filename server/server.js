@@ -50,6 +50,15 @@ app.post('/session', async (req, res) => {
     
     if (gameType === 'ultimatum') {
       const session = ultimatumManager.createSession(instructorName, sessionName, config);
+      // Save to database
+      db.saveSession({
+        code: session.code,
+        sessionName: session.sessionName,
+        instructorName: session.instructorName,
+        config: session.config,
+        status: session.status,
+        gameType: 'ultimatum'
+      });
       res.status(201).json(session);
     } else {
       const session = await manager.createSession(instructorName, sessionName, config);

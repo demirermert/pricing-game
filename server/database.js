@@ -20,6 +20,7 @@ db.exec(`
     instructor_name TEXT NOT NULL,
     config TEXT NOT NULL,
     status TEXT NOT NULL,
+    game_type TEXT DEFAULT 'pricing',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     completed_at DATETIME
   );
@@ -66,8 +67,8 @@ db.exec(`
 // Prepared statements for better performance
 const statements = {
   insertSession: db.prepare(`
-    INSERT INTO sessions (code, session_name, instructor_name, config, status)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO sessions (code, session_name, instructor_name, config, status, game_type)
+    VALUES (?, ?, ?, ?, ?, ?)
   `),
   
   updateSessionStatus: db.prepare(`
@@ -116,13 +117,14 @@ const statements = {
 };
 
 export function saveSession(sessionData) {
-  const { code, sessionName, instructorName, config, status } = sessionData;
+  const { code, sessionName, instructorName, config, status, gameType } = sessionData;
   const result = statements.insertSession.run(
     code,
     sessionName || null,
     instructorName,
     JSON.stringify(config),
-    status
+    status,
+    gameType || 'pricing'
   );
   return result.lastInsertRowid;
 }
@@ -217,6 +219,7 @@ export function getAllSessions() {
       sessionName: s.session_name,
       instructorName: s.instructor_name,
       status: s.status,
+      gameType: s.game_type || 'pricing',
       createdAt: s.created_at,
       completedAt: s.completed_at,
       config: JSON.parse(s.config),
