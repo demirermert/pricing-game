@@ -126,10 +126,10 @@ async function setupInstructorManual(browser) {
     console.log('⏳ Waiting for you to create the session...');
     let sessionCode = null;
     let attempts = 0;
-    const maxAttempts = 120;
+    const maxAttempts = 300; // 5 minutes
     
     while (!sessionCode && attempts < maxAttempts) {
-      await delay(1000);
+      await delay(2000); // Poll every 2 seconds instead of 1 second
       attempts++;
       
       // Check if page is still alive
@@ -138,20 +138,27 @@ async function setupInstructorManual(browser) {
       }
       
       sessionCode = await instructorPage.evaluate(() => {
-        const urlMatch = window.location.pathname.match(/\/ult\/manage\/([A-Z]{4})/);
-        if (urlMatch) return urlMatch[1];
-        
-        const allStrong = Array.from(document.querySelectorAll('strong'));
-        for (const strong of allStrong) {
-          const text = strong.textContent.trim();
-          if (/^[A-Z]{4}$/.test(text)) {
-            const rect = strong.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) return text;
+        try {
+          const urlMatch = window.location.pathname.match(/\/ult\/manage\/([A-Z]{4})/);
+          if (urlMatch) return urlMatch[1];
+          
+          const allStrong = Array.from(document.querySelectorAll('strong'));
+          for (const strong of allStrong) {
+            const text = strong.textContent.trim();
+            if (/^[A-Z]{4}$/.test(text)) {
+              const rect = strong.getBoundingClientRect();
+              if (rect.width > 0 && rect.height > 0) return text;
+            }
           }
+          return null;
+        } catch (e) {
+          return null;
         }
-        return null;
       }).catch(err => {
-        console.log(`⚠️  Error checking for session code (attempt ${attempts}):`, err.message);
+        // Silently ignore errors during form interaction
+        if (attempts % 10 === 0) {
+          console.log(`⏳ Still waiting... (${Math.floor(attempts * 2 / 60)} minutes)`);
+        }
         return null;
       });
       
@@ -181,20 +188,24 @@ async function setupInstructorManual(browser) {
     let lobbyOpened = false;
     attempts = 0;
     while (!lobbyOpened && attempts < maxAttempts) {
-      await delay(1000);
+      await delay(2000); // Poll every 2 seconds
       attempts++;
       
       lobbyOpened = await instructorPage.evaluate(() => {
-        const statusTags = Array.from(document.querySelectorAll('.status-tag, [class*="status"]'));
-        for (const tag of statusTags) {
-          if (tag.textContent.trim().toUpperCase() === 'LOBBY') return true;
+        try {
+          const statusTags = Array.from(document.querySelectorAll('.status-tag, [class*="status"]'));
+          for (const tag of statusTags) {
+            if (tag.textContent.trim().toUpperCase() === 'LOBBY') return true;
+          }
+          
+          const buttons = Array.from(document.querySelectorAll('button'));
+          return buttons.some(btn => 
+            btn.textContent.toLowerCase().includes('start') && 
+            btn.textContent.toLowerCase().includes('game')
+          );
+        } catch (e) {
+          return false;
         }
-        
-        const buttons = Array.from(document.querySelectorAll('button'));
-        return buttons.some(btn => 
-          btn.textContent.toLowerCase().includes('start') && 
-          btn.textContent.toLowerCase().includes('game')
-        );
       }).catch(() => false);
     }
     

@@ -54,6 +54,7 @@ export function createUltimatumGameManager(io) {
     } while (sessions.has(code));
 
     const config = deepMerge(DEFAULT_CONFIG, configOverrides);
+    console.log('Creating Ultimatum session with config:', config);
     const session = {
       code,
       gameType: 'ultimatum',
@@ -335,6 +336,8 @@ export function createUltimatumGameManager(io) {
     }
 
     session.currentRound += 1;
+    
+    console.log(`Starting round ${session.currentRound} with proposeTime=${session.config.proposeTime}s, respondTime=${session.config.respondTime}s`);
     
     // Repair or swap roles?
     // Economic experiments usually switch partners (Stranger matching) or keep partners (Partner matching).
