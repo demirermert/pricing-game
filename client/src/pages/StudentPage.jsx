@@ -22,8 +22,7 @@ function generateRandomName() {
 
 export default function StudentPage() {
   const navigate = useNavigate();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [name, setName] = useState('');
   const [sessionCodeInput, setSessionCodeInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -44,12 +43,12 @@ export default function StudentPage() {
     });
     console.log('Cleared all previous student session data');
     
-    // If names are not provided, generate a random name
+    // If name is not provided, generate a random name
     let fullName;
-    if (!firstName.trim() || !lastName.trim()) {
+    if (!name.trim()) {
       fullName = generateRandomName();
     } else {
-      fullName = `${firstName.trim()} ${lastName.trim()}`;
+      fullName = name.trim();
     }
     
     // Redirect to session page (server will generate unique code)
@@ -81,25 +80,14 @@ export default function StudentPage() {
       </div>
 
       <form onSubmit={handleJoinSession} className="student-form">
-        <div className="name-inputs">
-          <div className="input-row">
-            <label htmlFor="first-name">First name</label>
-            <input
-              id="first-name"
-              type="text"
-              value={firstName}
-              onChange={event => setFirstName(event.target.value)}
-            />
-          </div>
-          <div className="input-row">
-            <label htmlFor="last-name">Last name</label>
-            <input
-              id="last-name"
-              type="text"
-              value={lastName}
-              onChange={event => setLastName(event.target.value)}
-            />
-          </div>
+        <div className="input-row">
+          <label htmlFor="student-name">Name</label>
+          <input
+            id="student-name"
+            type="text"
+            value={name}
+            onChange={event => setName(event.target.value)}
+          />
         </div>
         <div className="input-row">
           <label htmlFor="session-code">Session code</label>

@@ -322,20 +322,11 @@ async function setupStudent(browser, studentNum, sessionCode) {
       return null; // Return null instead of throwing, so automation continues
     }
     
-    // Find the first name input field
-    const firstNameInput = await studentPage.$('#first-name').catch(() => null);
-    if (firstNameInput) {
-      await firstNameInput.type(`Student${studentNum}`, { delay: 0 });
-      console.log(`✅ Student ${studentNum}: Entered first name`);
-    }
-    
-    await delay(50);
-    
-    // Find the last name input field
-    const lastNameInput = await studentPage.$('#last-name').catch(() => null);
-    if (lastNameInput) {
-      await lastNameInput.type(`Test`, { delay: 0 });
-      console.log(`✅ Student ${studentNum}: Entered last name`);
+    // Find the name input field
+    const nameInput = await studentPage.$('#student-name').catch(() => null);
+    if (nameInput) {
+      await nameInput.type(`Student${studentNum}`, { delay: 0 });
+      console.log(`✅ Student ${studentNum}: Entered name`);
     }
     
     await delay(50);
