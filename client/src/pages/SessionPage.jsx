@@ -823,7 +823,7 @@ export default function SessionPage() {
     return (
       <div className="app-shell" style={{ position: 'relative' }}>
         {/* Loading overlay during initial load and transitions */}
-        {(isTransitioning || (isInitialLoad && !isPageReady)) && (
+        {(isTransitioning || (isInitialLoad && !isPageReady)) ? (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -871,40 +871,42 @@ export default function SessionPage() {
               </p>
             </div>
           </div>
+        ) : (
+          <>
+            {isCompletedSession && (
+              <div style={{
+                padding: '1rem',
+                marginBottom: '1rem',
+                backgroundColor: '#dbeafe',
+                borderRadius: '8px',
+                borderLeft: '4px solid #3b82f6',
+                textAlign: 'center'
+              }}>
+                <p style={{ margin: 0, color: '#1e40af', fontWeight: 600 }}>
+                  📋 Viewing archived session (read-only mode)
+                </p>
+              </div>
+            )}
+            <InstructorDashboard
+              instructorName={userName || validSession?.instructorName}
+              session={validSession}
+              canStart={canStart && !isCompletedSession}
+              canOpenLobby={canOpenLobby && !isCompletedSession}
+              startDisabledReason={startDisabledReason}
+              onStart={handleStartSession}
+              onOpenLobby={handleOpenLobby}
+              onEndSession={handleEndSession}
+              leaderboard={leaderboard}
+              latestRound={latestRoundSummary}
+              allRounds={allRoundSummaries}
+              errorMessage={errorMessage}
+              onDismissError={() => setErrorMessage('')}
+              timer={timer}
+              roundActive={roundActive}
+              nextRoundCountdown={nextRoundCountdown}
+            />
+          </>
         )}
-        
-        {isCompletedSession && (
-          <div style={{
-            padding: '1rem',
-            marginBottom: '1rem',
-            backgroundColor: '#dbeafe',
-            borderRadius: '8px',
-            borderLeft: '4px solid #3b82f6',
-            textAlign: 'center'
-          }}>
-            <p style={{ margin: 0, color: '#1e40af', fontWeight: 600 }}>
-              📋 Viewing archived session (read-only mode)
-            </p>
-          </div>
-        )}
-        <InstructorDashboard
-          instructorName={userName || validSession?.instructorName}
-          session={validSession}
-          canStart={canStart && !isCompletedSession}
-          canOpenLobby={canOpenLobby && !isCompletedSession}
-          startDisabledReason={startDisabledReason}
-          onStart={handleStartSession}
-          onOpenLobby={handleOpenLobby}
-          onEndSession={handleEndSession}
-          leaderboard={leaderboard}
-          latestRound={latestRoundSummary}
-          allRounds={allRoundSummaries}
-          errorMessage={errorMessage}
-          onDismissError={() => setErrorMessage('')}
-          timer={timer}
-          roundActive={roundActive}
-          nextRoundCountdown={nextRoundCountdown}
-        />
       </div>
     );
   }
