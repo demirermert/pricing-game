@@ -60,17 +60,6 @@ export default function SessionPage() {
     gameState: false
   });
 
-  // Helper function to check if all required events have been received
-  const checkAndSetReady = (updatedEvents) => {
-    const allReceived = updatedEvents.sessionUpdate && updatedEvents.gameState;
-    if (allReceived && (isTransitioning || isInitialLoad)) {
-      console.log('[SessionPage] All required events received, marking ready');
-      setIsTransitioning(false);
-      setIsPageReady(true);
-      setIsInitialLoad(false);
-    }
-  };
-
   // Clear all state when session code changes (navigating to a new session)
   useEffect(() => {
     console.log('[SessionPage] Session code changed to:', sessionCode);
@@ -95,6 +84,18 @@ export default function SessionPage() {
     sessionStorage.removeItem('lastServerTime');
     sessionStorage.removeItem('lastServerTimer');
   }, [sessionCode, isInitialLoad]);
+
+  // Check if all required events have been received and mark page as ready
+  // This runs AFTER all state updates have completed, preventing flicker
+  useEffect(() => {
+    const allReceived = receivedEvents.sessionUpdate && receivedEvents.gameState;
+    if (allReceived && (isTransitioning || isInitialLoad)) {
+      console.log('[SessionPage] All required events received, marking ready');
+      setIsTransitioning(false);
+      setIsPageReady(true);
+      setIsInitialLoad(false);
+    }
+  }, [receivedEvents, isTransitioning, isInitialLoad]);
 
   // Timeout fallback: if we're still waiting after 3 seconds, mark as ready anyway
   useEffect(() => {
@@ -221,7 +222,6 @@ export default function SessionPage() {
             console.log('[SessionPage] Session in non-active state, marking gameState received');
           }
           
-          checkAndSetReady(updated);
           return updated;
         });
       }
@@ -240,11 +240,7 @@ export default function SessionPage() {
       sessionStorage.setItem('roundDuration', payload.roundTime.toString());
       
       // Mark gameState as received (we have timer info)
-      setReceivedEvents(prev => {
-        const updated = { ...prev, gameState: true };
-        checkAndSetReady(updated);
-        return updated;
-      });
+      setReceivedEvents(prev => ({ ...prev, gameState: true }));
     };
     
     const handleRoundResults = payload => {
@@ -265,11 +261,7 @@ export default function SessionPage() {
       sessionStorage.setItem('lastServerTimer', payload.remaining.toString());
       
       // Mark gameState as received (we have timer info)
-      setReceivedEvents(prev => {
-        const updated = { ...prev, gameState: true };
-        checkAndSetReady(updated);
-        return updated;
-      });
+      setReceivedEvents(prev => ({ ...prev, gameState: true }));
     };
     
     const handleNextRoundCountdown = payload => {
@@ -278,11 +270,7 @@ export default function SessionPage() {
       setTimer(0);
       
       // Mark gameState as received (we have countdown info)
-      setReceivedEvents(prev => {
-        const updated = { ...prev, gameState: true };
-        checkAndSetReady(updated);
-        return updated;
-      });
+      setReceivedEvents(prev => ({ ...prev, gameState: true }));
     };
     
     const handleRoundSummary = payload => {
