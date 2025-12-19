@@ -52,38 +52,37 @@ export default function SessionPage() {
   const [nextRoundCountdown, setNextRoundCountdown] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [opponentName, setOpponentName] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isPageReady, setIsPageReady] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Clear all state when session code changes (navigating to a new session)
   useEffect(() => {
     console.log('[SessionPage] Session code changed to:', sessionCode);
-    // Reset all game state
-    setSession(null);
-    setJoinInfo(null);
-    setIsCompletedSession(false);
-    setRoundInfo(null);
-    setTimer(0);
-    setRoundActive(false);
-    setLatestResult(null);
-    setHistory([]);
-    setHasSubmitted(false);
-    setErrorMessage('');
-    setLeaderboardData(new Map());
-    setLatestRoundSummary(null);
-    setAllRoundSummaries([]);
-    setNextRoundCountdown(null);
-    setChatMessages([]);
-    setOpponentName(null);
+    
+    // If this isn't the initial load, we're transitioning between sessions
+    if (!isInitialLoad) {
+      setIsTransitioning(true);
+      setIsPageReady(false);
+    }
+    
     setHasAttemptedJoin(false); // Reset join attempt flag
+    
+    // Clear only session-specific data that could cause issues
+    // Keep UI state intact to prevent flickering
+    setJoinInfo(null);
+    setErrorMessage('');
     
     // Clear sessionStorage for old round data
     sessionStorage.removeItem('roundStartTime');
     sessionStorage.removeItem('roundDuration');
     sessionStorage.removeItem('lastServerTime');
     sessionStorage.removeItem('lastServerTimer');
-  }, [sessionCode]);
+  }, [sessionCode, isInitialLoad]);
 
   useEffect(() => {
     const handleJoinedSession = async payload => {
+      console.log('[SessionPage] Joined session successfully:', payload.sessionCode);
       setJoinInfo(payload);
       setUserRole(payload.role);
       
@@ -97,6 +96,9 @@ export default function SessionPage() {
         setLatestRoundSummary(null);
         setAllRoundSummaries([]);
       }
+      
+      // Mark as ready once we've joined and will receive session data
+      setIsJoining(false);
       
       // If session is complete and we're an instructor, load historical data from database
       if (payload.status === 'complete' && payload.role === 'instructor') {
@@ -173,7 +175,19 @@ export default function SessionPage() {
     };
     
     const handleSessionUpdate = payload => {
-      setSession(payload);
+      console.log('[SessionPage] Session update received for:', payload.code);
+      // Only update if this is the current session we're viewing
+      if (payload.code === sessionCode) {
+        setSession(payload);
+        
+        // Once we receive the first session update, mark as ready
+        if (isTransitioning || isInitialLoad) {
+          console.log('[SessionPage] First session update received, marking ready');
+          setIsTransitioning(false);
+          setIsPageReady(true);
+          setIsInitialLoad(false);
+        }
+      }
     };
     
     const handleRoundStarted = payload => {
@@ -749,7 +763,58 @@ export default function SessionPage() {
     }
 
     return (
-      <div className="app-shell">
+      <div className="app-shell" style={{ position: 'relative' }}>
+        {/* Loading overlay during initial load and transitions */}
+        {(isTransitioning || (isInitialLoad && !isPageReady)) && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            backdropFilter: 'blur(4px)'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              padding: '2rem',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+              border: '2px solid #e5e7eb'
+            }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                border: '4px solid #e5e7eb',
+                borderTopColor: '#3b82f6',
+                borderRadius: '50%',
+                margin: '0 auto 1rem',
+                animation: 'spin 1s linear infinite'
+              }} />
+              <p style={{ 
+                margin: 0, 
+                fontSize: '1.25rem', 
+                fontWeight: 600, 
+                color: '#1f2937' 
+              }}>
+                Loading Session...
+              </p>
+              <p style={{ 
+                margin: '0.5rem 0 0 0', 
+                fontSize: '0.875rem', 
+                color: '#6b7280' 
+              }}>
+                Session Code: {sessionCode}
+              </p>
+            </div>
+          </div>
+        )}
+        
         {isCompletedSession && (
           <div style={{
             padding: '1rem',
