@@ -278,13 +278,14 @@ export default function InstructorPage() {
                 <input
                   type="number"
                   min="1"
+                  step="1"
                   value={instructorConfig.rounds}
                   onChange={event => {
-                    const newRounds = event.target.value;
+                    const newRounds = event.target.value === '' ? 1 : Number(event.target.value);
                     setInstructorConfig(cfg => {
                       // If different time per round is enabled, adjust the array
                       if (cfg.differentTimePerRound) {
-                        const newRoundTimes = Array(Number(newRounds)).fill(0).map((_, i) => 
+                        const newRoundTimes = Array(newRounds).fill(0).map((_, i) => 
                           cfg.roundTimes[i] || cfg.roundTime
                         );
                         return { ...cfg, rounds: newRounds, roundTimes: newRoundTimes };
@@ -322,8 +323,12 @@ export default function InstructorPage() {
                   <input
                     type="number"
                     min="10"
+                    step="1"
                     value={instructorConfig.roundTime}
-                    onChange={event => setInstructorConfig(cfg => ({ ...cfg, roundTime: event.target.value }))}
+                    onChange={event => {
+                      const value = event.target.value === '' ? 10 : Number(event.target.value);
+                      setInstructorConfig(cfg => ({ ...cfg, roundTime: value }));
+                    }}
                   />
                 </div>
               )}
@@ -345,14 +350,16 @@ export default function InstructorPage() {
                           <input
                             type="number"
                             min="10"
+                            step="1"
                             value={currentValue}
                             onChange={event => {
+                              const value = event.target.value === '' ? 10 : Number(event.target.value);
                               const newRoundTimes = [...(instructorConfig.roundTimes || [])];
                               // Ensure array is large enough
                               while (newRoundTimes.length <= i) {
                                 newRoundTimes.push(instructorConfig.roundTime);
                               }
-                              newRoundTimes[i] = event.target.value;
+                              newRoundTimes[i] = value;
                               setInstructorConfig(cfg => ({ ...cfg, roundTimes: newRoundTimes }));
                             }}
                             style={{ padding: '0.5rem', fontSize: '0.875rem' }}
@@ -369,8 +376,12 @@ export default function InstructorPage() {
                 <input
                   type="number"
                   min="0"
+                  step="1"
                   value={instructorConfig.breakTime}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, breakTime: event.target.value }))}
+                  onChange={event => {
+                    const value = event.target.value === '' ? 0 : Number(event.target.value);
+                    setInstructorConfig(cfg => ({ ...cfg, breakTime: value }));
+                  }}
                 />
               </div>
               <div className="input-row">
@@ -378,8 +389,12 @@ export default function InstructorPage() {
                 <input
                   type="number"
                   min="1"
+                  step="1"
                   value={instructorConfig.marketSize}
-                  onChange={event => setInstructorConfig(cfg => ({ ...cfg, marketSize: event.target.value }))}
+                  onChange={event => {
+                    const value = event.target.value === '' ? 1 : Number(event.target.value);
+                    setInstructorConfig(cfg => ({ ...cfg, marketSize: value }));
+                  }}
                 />
               </div>
               
@@ -401,18 +416,24 @@ export default function InstructorPage() {
                     <label>Price sensitivity (alpha)</label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="any"
                       value={instructorConfig.alpha}
-                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, alpha: event.target.value }))}
+                      onChange={event => {
+                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        setInstructorConfig(cfg => ({ ...cfg, alpha: value }));
+                      }}
                     />
                   </div>
                   <div className="input-row">
                     <label>Differentiation (sigma)</label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="any"
                       value={instructorConfig.sigma}
-                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, sigma: event.target.value }))}
+                      onChange={event => {
+                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        setInstructorConfig(cfg => ({ ...cfg, sigma: value }));
+                      }}
                     />
                   </div>
                 </>
@@ -424,20 +445,26 @@ export default function InstructorPage() {
                     <label>Travel cost (t)</label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="any"
                       min="0"
                       value={instructorConfig.travelCost}
-                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, travelCost: event.target.value }))}
+                      onChange={event => {
+                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        setInstructorConfig(cfg => ({ ...cfg, travelCost: value }));
+                      }}
                     />
                   </div>
                   <div className="input-row">
                     <label>Consumer valuation (V)</label>
                     <input
                       type="number"
-                      step="0.1"
+                      step="any"
                       min="0"
                       value={instructorConfig.consumerValue}
-                      onChange={event => setInstructorConfig(cfg => ({ ...cfg, consumerValue: event.target.value }))}
+                      onChange={event => {
+                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        setInstructorConfig(cfg => ({ ...cfg, consumerValue: value }));
+                      }}
                     />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1rem' }}>
@@ -445,20 +472,28 @@ export default function InstructorPage() {
                       <label>Firm 1 location (x₁)</label>
                       <input
                         type="number"
+                        step="any"
                         min="0"
                         max="100"
                         value={instructorConfig.x1}
-                        onChange={event => setInstructorConfig(cfg => ({ ...cfg, x1: event.target.value }))}
+                        onChange={event => {
+                          const value = event.target.value === '' ? 0 : Number(event.target.value);
+                          setInstructorConfig(cfg => ({ ...cfg, x1: value }));
+                        }}
                       />
                     </div>
                     <div className="input-row">
                       <label>Firm 2 location (x₂)</label>
                       <input
                         type="number"
+                        step="any"
                         min="0"
                         max="100"
                         value={instructorConfig.x2}
-                        onChange={event => setInstructorConfig(cfg => ({ ...cfg, x2: event.target.value }))}
+                        onChange={event => {
+                          const value = event.target.value === '' ? 0 : Number(event.target.value);
+                          setInstructorConfig(cfg => ({ ...cfg, x2: value }));
+                        }}
                       />
                     </div>
                   </div>
@@ -470,16 +505,24 @@ export default function InstructorPage() {
                   <label>Min price</label>
                   <input
                     type="number"
+                    step="any"
                     value={instructorConfig.priceMin}
-                    onChange={event => setInstructorConfig(cfg => ({ ...cfg, priceMin: event.target.value }))}
+                    onChange={event => {
+                      const value = event.target.value === '' ? 0 : Number(event.target.value);
+                      setInstructorConfig(cfg => ({ ...cfg, priceMin: value }));
+                    }}
                   />
                 </div>
                 <div className="input-row">
                   <label>Max price</label>
                   <input
                     type="number"
+                    step="any"
                     value={instructorConfig.priceMax}
-                    onChange={event => setInstructorConfig(cfg => ({ ...cfg, priceMax: event.target.value }))}
+                    onChange={event => {
+                      const value = event.target.value === '' ? 0 : Number(event.target.value);
+                      setInstructorConfig(cfg => ({ ...cfg, priceMax: value }));
+                    }}
                   />
                 </div>
               </div>
