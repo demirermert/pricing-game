@@ -281,17 +281,23 @@ export default function InstructorPage() {
                   step="1"
                   value={instructorConfig.rounds}
                   onChange={event => {
-                    const newRounds = event.target.value === '' ? 1 : Number(event.target.value);
+                    const newRounds = event.target.value === '' ? '' : Number(event.target.value);
                     setInstructorConfig(cfg => {
                       // If different time per round is enabled, adjust the array
                       if (cfg.differentTimePerRound) {
-                        const newRoundTimes = Array(newRounds).fill(0).map((_, i) => 
+                        const numRounds = newRounds === '' ? 1 : newRounds;
+                        const newRoundTimes = Array(numRounds).fill(0).map((_, i) => 
                           cfg.roundTimes[i] || cfg.roundTime
                         );
                         return { ...cfg, rounds: newRounds, roundTimes: newRoundTimes };
                       }
                       return { ...cfg, rounds: newRounds };
                     });
+                  }}
+                  onBlur={event => {
+                    if (event.target.value === '') {
+                      setInstructorConfig(cfg => ({ ...cfg, rounds: 1 }));
+                    }
                   }}
                 />
               </div>
@@ -326,8 +332,13 @@ export default function InstructorPage() {
                     step="1"
                     value={instructorConfig.roundTime}
                     onChange={event => {
-                      const value = event.target.value === '' ? 10 : Number(event.target.value);
+                      const value = event.target.value === '' ? '' : Number(event.target.value);
                       setInstructorConfig(cfg => ({ ...cfg, roundTime: value }));
+                    }}
+                    onBlur={event => {
+                      if (event.target.value === '') {
+                        setInstructorConfig(cfg => ({ ...cfg, roundTime: 10 }));
+                      }
                     }}
                   />
                 </div>
@@ -353,7 +364,7 @@ export default function InstructorPage() {
                             step="1"
                             value={currentValue}
                             onChange={event => {
-                              const value = event.target.value === '' ? 10 : Number(event.target.value);
+                              const value = event.target.value === '' ? '' : Number(event.target.value);
                               const newRoundTimes = [...(instructorConfig.roundTimes || [])];
                               // Ensure array is large enough
                               while (newRoundTimes.length <= i) {
@@ -361,6 +372,16 @@ export default function InstructorPage() {
                               }
                               newRoundTimes[i] = value;
                               setInstructorConfig(cfg => ({ ...cfg, roundTimes: newRoundTimes }));
+                            }}
+                            onBlur={event => {
+                              if (event.target.value === '') {
+                                const newRoundTimes = [...(instructorConfig.roundTimes || [])];
+                                while (newRoundTimes.length <= i) {
+                                  newRoundTimes.push(instructorConfig.roundTime);
+                                }
+                                newRoundTimes[i] = 10;
+                                setInstructorConfig(cfg => ({ ...cfg, roundTimes: newRoundTimes }));
+                              }
                             }}
                             style={{ padding: '0.5rem', fontSize: '0.875rem' }}
                           />
@@ -379,8 +400,13 @@ export default function InstructorPage() {
                   step="1"
                   value={instructorConfig.breakTime}
                   onChange={event => {
-                    const value = event.target.value === '' ? 0 : Number(event.target.value);
+                    const value = event.target.value === '' ? '' : Number(event.target.value);
                     setInstructorConfig(cfg => ({ ...cfg, breakTime: value }));
+                  }}
+                  onBlur={event => {
+                    if (event.target.value === '') {
+                      setInstructorConfig(cfg => ({ ...cfg, breakTime: 0 }));
+                    }
                   }}
                 />
               </div>
@@ -392,8 +418,13 @@ export default function InstructorPage() {
                   step="1"
                   value={instructorConfig.marketSize}
                   onChange={event => {
-                    const value = event.target.value === '' ? 1 : Number(event.target.value);
+                    const value = event.target.value === '' ? '' : Number(event.target.value);
                     setInstructorConfig(cfg => ({ ...cfg, marketSize: value }));
+                  }}
+                  onBlur={event => {
+                    if (event.target.value === '') {
+                      setInstructorConfig(cfg => ({ ...cfg, marketSize: 1 }));
+                    }
                   }}
                 />
               </div>
@@ -419,8 +450,13 @@ export default function InstructorPage() {
                       step="any"
                       value={instructorConfig.alpha}
                       onChange={event => {
-                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        const value = event.target.value === '' ? '' : Number(event.target.value);
                         setInstructorConfig(cfg => ({ ...cfg, alpha: value }));
+                      }}
+                      onBlur={event => {
+                        if (event.target.value === '') {
+                          setInstructorConfig(cfg => ({ ...cfg, alpha: 1 }));
+                        }
                       }}
                     />
                   </div>
@@ -431,8 +467,13 @@ export default function InstructorPage() {
                       step="any"
                       value={instructorConfig.sigma}
                       onChange={event => {
-                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        const value = event.target.value === '' ? '' : Number(event.target.value);
                         setInstructorConfig(cfg => ({ ...cfg, sigma: value }));
+                      }}
+                      onBlur={event => {
+                        if (event.target.value === '') {
+                          setInstructorConfig(cfg => ({ ...cfg, sigma: 1 }));
+                        }
                       }}
                     />
                   </div>
@@ -449,8 +490,14 @@ export default function InstructorPage() {
                       min="0"
                       value={instructorConfig.travelCost}
                       onChange={event => {
-                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        const value = event.target.value === '' ? '' : Number(event.target.value);
                         setInstructorConfig(cfg => ({ ...cfg, travelCost: value }));
+                      }}
+                      onBlur={event => {
+                        // Convert to number on blur if empty
+                        if (event.target.value === '') {
+                          setInstructorConfig(cfg => ({ ...cfg, travelCost: 0 }));
+                        }
                       }}
                     />
                   </div>
@@ -462,8 +509,14 @@ export default function InstructorPage() {
                       min="0"
                       value={instructorConfig.consumerValue}
                       onChange={event => {
-                        const value = event.target.value === '' ? 0 : Number(event.target.value);
+                        const value = event.target.value === '' ? '' : Number(event.target.value);
                         setInstructorConfig(cfg => ({ ...cfg, consumerValue: value }));
+                      }}
+                      onBlur={event => {
+                        // Convert to number on blur if empty
+                        if (event.target.value === '') {
+                          setInstructorConfig(cfg => ({ ...cfg, consumerValue: 0 }));
+                        }
                       }}
                     />
                   </div>
@@ -477,8 +530,13 @@ export default function InstructorPage() {
                         max="100"
                         value={instructorConfig.x1}
                         onChange={event => {
-                          const value = event.target.value === '' ? 0 : Number(event.target.value);
+                          const value = event.target.value === '' ? '' : Number(event.target.value);
                           setInstructorConfig(cfg => ({ ...cfg, x1: value }));
+                        }}
+                        onBlur={event => {
+                          if (event.target.value === '') {
+                            setInstructorConfig(cfg => ({ ...cfg, x1: 0 }));
+                          }
                         }}
                       />
                     </div>
@@ -491,8 +549,13 @@ export default function InstructorPage() {
                         max="100"
                         value={instructorConfig.x2}
                         onChange={event => {
-                          const value = event.target.value === '' ? 0 : Number(event.target.value);
+                          const value = event.target.value === '' ? '' : Number(event.target.value);
                           setInstructorConfig(cfg => ({ ...cfg, x2: value }));
+                        }}
+                        onBlur={event => {
+                          if (event.target.value === '') {
+                            setInstructorConfig(cfg => ({ ...cfg, x2: 0 }));
+                          }
                         }}
                       />
                     </div>
@@ -508,8 +571,13 @@ export default function InstructorPage() {
                     step="any"
                     value={instructorConfig.priceMin}
                     onChange={event => {
-                      const value = event.target.value === '' ? 0 : Number(event.target.value);
+                      const value = event.target.value === '' ? '' : Number(event.target.value);
                       setInstructorConfig(cfg => ({ ...cfg, priceMin: value }));
+                    }}
+                    onBlur={event => {
+                      if (event.target.value === '') {
+                        setInstructorConfig(cfg => ({ ...cfg, priceMin: 0 }));
+                      }
                     }}
                   />
                 </div>
@@ -520,8 +588,13 @@ export default function InstructorPage() {
                     step="any"
                     value={instructorConfig.priceMax}
                     onChange={event => {
-                      const value = event.target.value === '' ? 0 : Number(event.target.value);
+                      const value = event.target.value === '' ? '' : Number(event.target.value);
                       setInstructorConfig(cfg => ({ ...cfg, priceMax: value }));
+                    }}
+                    onBlur={event => {
+                      if (event.target.value === '') {
+                        setInstructorConfig(cfg => ({ ...cfg, priceMax: 100 }));
+                      }
                     }}
                   />
                 </div>
