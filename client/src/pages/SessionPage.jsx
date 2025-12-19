@@ -55,6 +55,21 @@ export default function SessionPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPageReady, setIsPageReady] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [receivedEvents, setReceivedEvents] = useState({
+    sessionUpdate: false,
+    gameState: false
+  });
+
+  // Helper function to check if all required events have been received
+  const checkAndSetReady = (updatedEvents) => {
+    const allReceived = updatedEvents.sessionUpdate && updatedEvents.gameState;
+    if (allReceived && (isTransitioning || isInitialLoad)) {
+      console.log('[SessionPage] All required events received, marking ready');
+      setIsTransitioning(false);
+      setIsPageReady(true);
+      setIsInitialLoad(false);
+    }
+  };
 
   // Clear all state when session code changes (navigating to a new session)
   useEffect(() => {
@@ -64,6 +79,7 @@ export default function SessionPage() {
     if (!isInitialLoad) {
       setIsTransitioning(true);
       setIsPageReady(false);
+      setReceivedEvents({ sessionUpdate: false, gameState: false });
     }
     
     setHasAttemptedJoin(false); // Reset join attempt flag
@@ -79,6 +95,20 @@ export default function SessionPage() {
     sessionStorage.removeItem('lastServerTime');
     sessionStorage.removeItem('lastServerTimer');
   }, [sessionCode, isInitialLoad]);
+
+  // Timeout fallback: if we're still waiting after 3 seconds, mark as ready anyway
+  useEffect(() => {
+    if (isTransitioning || (isInitialLoad && !isPageReady)) {
+      const timeoutId = setTimeout(() => {
+        console.log('[SessionPage] Timeout reached, forcing page ready');
+        setIsTransitioning(false);
+        setIsPageReady(true);
+        setIsInitialLoad(false);
+      }, 3000); // 3 second timeout
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isTransitioning, isInitialLoad, isPageReady]);
 
   useEffect(() => {
     const handleJoinedSession = async payload => {
@@ -180,13 +210,20 @@ export default function SessionPage() {
       if (payload.code === sessionCode) {
         setSession(payload);
         
-        // Once we receive the first session update, mark as ready
-        if (isTransitioning || isInitialLoad) {
-          console.log('[SessionPage] First session update received, marking ready');
-          setIsTransitioning(false);
-          setIsPageReady(true);
-          setIsInitialLoad(false);
-        }
+        // Mark sessionUpdate as received
+        setReceivedEvents(prev => {
+          const updated = { ...prev, sessionUpdate: true };
+          
+          // If session is in lobby or setup, there's no active timer/countdown to wait for
+          // Mark gameState as received immediately
+          if (payload.status === 'lobby' || payload.status === 'setup' || payload.status === 'complete') {
+            updated.gameState = true;
+            console.log('[SessionPage] Session in non-active state, marking gameState received');
+          }
+          
+          checkAndSetReady(updated);
+          return updated;
+        });
       }
     };
     
@@ -201,6 +238,13 @@ export default function SessionPage() {
       // Store the round start time for client-side fallback timer
       sessionStorage.setItem('roundStartTime', Date.now().toString());
       sessionStorage.setItem('roundDuration', payload.roundTime.toString());
+      
+      // Mark gameState as received (we have timer info)
+      setReceivedEvents(prev => {
+        const updated = { ...prev, gameState: true };
+        checkAndSetReady(updated);
+        return updated;
+      });
     };
     
     const handleRoundResults = payload => {
@@ -219,12 +263,26 @@ export default function SessionPage() {
       // Update last server time
       sessionStorage.setItem('lastServerTime', Date.now().toString());
       sessionStorage.setItem('lastServerTimer', payload.remaining.toString());
+      
+      // Mark gameState as received (we have timer info)
+      setReceivedEvents(prev => {
+        const updated = { ...prev, gameState: true };
+        checkAndSetReady(updated);
+        return updated;
+      });
     };
     
     const handleNextRoundCountdown = payload => {
       setNextRoundCountdown(payload.countdown);
       setRoundActive(false);
       setTimer(0);
+      
+      // Mark gameState as received (we have countdown info)
+      setReceivedEvents(prev => {
+        const updated = { ...prev, gameState: true };
+        checkAndSetReady(updated);
+        return updated;
+      });
     };
     
     const handleRoundSummary = payload => {
